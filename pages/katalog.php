@@ -1,5 +1,6 @@
 <?php
 require_once '../includes/auth.php';
+require_once '../includes/upload.php';
 require_login();
 $uid = $_SESSION['user_id'];
 $kats = ['Eksterior', 'Interior', 'Kaki-kaki', 'Performa'];
@@ -67,8 +68,13 @@ include '../includes/header.php';
   <div class="card">Belum ada part yang cocok<?= $sel ? ' untuk ' . e($sel['merk'] . ' ' . $sel['model']) : '' ?>.</div>
 <?php else: ?>
 <div class="grid">
-  <?php foreach ($parts as $p): ?>
+  <?php foreach ($parts as $p): $img = foto_url($p['foto']); ?>
   <article class="card">
+    <?php if ($img): ?>
+      <img class="thumb" src="<?= e($img) ?>" alt="<?= e($p['nama_part']) ?>" loading="lazy">
+    <?php else: ?>
+      <div class="thumb thumb-empty">Tanpa foto</div>
+    <?php endif; ?>
     <span class="tag"><?= e($p['kategori']) ?></span>
     <h3><?= e($p['nama_part']) ?></h3>
     <p class="muted"><?= e($p['kompatibel_merk'] . ' ' . $p['kompatibel_model']) ?> · <?= (int)$p['tahun_min'] ?>-<?= (int)$p['tahun_max'] ?></p>

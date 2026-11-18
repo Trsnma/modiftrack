@@ -1,5 +1,6 @@
 <?php
 require_once '../includes/auth.php';
+require_once '../includes/upload.php';
 require_login();
 $uid = $_SESSION['user_id'];
 $statuses = ['Rencana', 'Sudah Dibeli', 'Terpasang'];
@@ -21,7 +22,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 $items = rows(
   'SELECT b.id, b.status_beli, b.catatan, v.id AS vid, v.merk, v.model, v.tahun_rilis,
-          p.nama_part, p.kategori, p.harga_part, p.estimasi_jasa
+          p.nama_part, p.kategori, p.harga_part, p.estimasi_jasa, p.foto
    FROM build_plans b
    JOIN vehicles v ON v.id=b.vehicle_id
    JOIN parts_catalog p ON p.id=b.part_id
@@ -49,9 +50,15 @@ include '../includes/header.php';
   <div class="table-scroll">
   <table>
     <tr><th>Part</th><th class="num">Harga part</th><th class="num">Jasa</th><th>Status</th><th>Catatan</th><th></th></tr>
-    <?php foreach ($g['rows'] as $r): $fid = 'f' . (int)$r['id']; ?>
+    <?php foreach ($g['rows'] as $r): $fid = 'f' . (int)$r['id']; $img = foto_url($r['foto']); ?>
     <tr>
-      <td><?= e($r['nama_part']) ?><br><span class="tag"><?= e($r['kategori']) ?></span></td>
+      <td>
+        <div class="part-cell">
+          <?php if ($img): ?><img class="thumb-sm" src="<?= e($img) ?>" alt="" loading="lazy">
+          <?php else: ?><div class="thumb-sm thumb-empty"></div><?php endif; ?>
+          <div><?= e($r['nama_part']) ?><br><span class="tag"><?= e($r['kategori']) ?></span></div>
+        </div>
+      </td>
       <td class="num"><?= rupiah($r['harga_part']) ?></td>
       <td class="num"><?= rupiah($r['estimasi_jasa']) ?></td>
       <td>
