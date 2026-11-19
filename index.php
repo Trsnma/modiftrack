@@ -3,7 +3,7 @@ require_once 'includes/auth.php';
 
 $base = '';
 $public = true;
-$title = 'Stay Calm & Always Classy';
+$title = 'Welcome to Modiftrack';
 $loggedIn = !empty($_SESSION['user_id']);
 $hasImage = file_exists(__DIR__ . '/assets/img/hero.png');
 
@@ -24,7 +24,7 @@ include 'includes/header.php';
   </header>
 
   <section id="home" class="lp-top">
-    <h1>Stay Calm &amp;<br>Always Classy</h1>
+    <h1>Welcome to <br>Modiftrack</h1>
     <div class="lp-colors">
       <span>Colors</span>
       <div class="swatches" role="group" aria-label="Pilih warna">
@@ -44,7 +44,7 @@ include 'includes/header.php';
         <p>An iconic journey of style and freedom, crafted for the modern rider.</p>
       </div>
       <div class="lp-brand">
-        <h2>Vespa</h2>
+        <h2>R25</h2>
         <p>means that you are a good person and values.</p>
         <a class="lp-cta" href="<?= $loggedIn ? 'pages/katalog.php' : 'auth/register.php' ?>">Explore Now &rarr;</a>
       </div>

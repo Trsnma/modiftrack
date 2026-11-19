@@ -141,6 +141,15 @@ img {
   border-color: #a3262a;
   color: #fff;
 }
+.btn-danger-solid {
+  background: #a3262a;
+  border-color: #a3262a;
+  color: #fff;
+}
+.btn-danger-solid:hover {
+  background: #861e22;
+  border-color: #861e22;
+}
 .btn-sm {
   padding: 6px 14px;
   font-size: 0.8rem;
@@ -293,7 +302,7 @@ form.card .btn {
   margin-top: 4px;
 }
 
-/* ---------- Tabel ---------- */
+/* ---------- Tabel (Garasi & Admin) ---------- */
 .card.table-scroll {
   padding: 10px 18px;
 }
@@ -374,12 +383,6 @@ td input {
   place-items: center;
   color: var(--muted);
   font-size: 0.8rem;
-}
-.part-cell {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  min-width: 200px;
 }
 
 /* ---------- Halaman login & register ---------- */
@@ -652,7 +655,7 @@ td input {
   margin-top: 32px;
 }
 
-/* Kerangka halaman internal (Home ABIEL, Garasi, Katalog, Build Plan, Admin) */
+/* Kerangka halaman internal (Home, Garasi, Katalog, Build Plan, Admin) */
 .shell {
   width: calc(100% - 40px);
   max-width: 1100px;
@@ -688,7 +691,176 @@ td input {
   padding: 14px 22px;
 }
 
+/* =========================================================
+   BUILD PLAN: satu kartu per part
+   ========================================================= */
+.build-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 16px;
+}
+.build-head h2,
+.build-head p {
+  margin: 0;
+}
+
+.items {
+  display: grid;
+  gap: 12px;
+}
+.item {
+  display: grid;
+  grid-template-columns:
+    minmax(220px, 1.3fr) minmax(140px, 0.7fr) minmax(300px, 1.6fr)
+    auto;
+  align-items: center;
+  gap: 18px;
+  padding: 14px 18px;
+  background: var(--tint);
+  border-left: 6px solid var(--line);
+  border-radius: 20px;
+}
+.item[data-status="rencana"] {
+  border-left-color: var(--muted);
+}
+.item[data-status="sudah-dibeli"] {
+  border-left-color: var(--gold);
+}
+.item[data-status="terpasang"] {
+  border-left-color: var(--purple);
+}
+
+.item-main {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-width: 0;
+}
+.item-main .thumb-sm {
+  width: 72px;
+  height: 72px;
+  background: #fff;
+}
+.item-name {
+  display: block;
+  font-weight: 700;
+  color: var(--ink);
+  margin-bottom: 4px;
+}
+
+.item-price {
+  display: grid;
+  gap: 2px;
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+.item-price b {
+  color: var(--purple);
+  font-size: 1rem;
+}
+
+.item-fields {
+  display: grid;
+  grid-template-columns: minmax(130px, 0.8fr) 1.2fr;
+  gap: 12px;
+}
+.item-fields label {
+  margin: 0;
+  font-size: 0.75rem;
+  color: var(--muted);
+}
+.item-fields select,
+.item-fields input {
+  margin-top: 4px;
+  background-color: #fff;
+}
+
+.item-actions {
+  display: flex;
+  gap: 8px;
+}
+
+/* =========================================================
+   DIALOG KONFIRMASI (menggantikan popup bawaan browser)
+   ========================================================= */
+dialog.confirm {
+  width: calc(100% - 32px);
+  max-width: 420px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  overflow: visible;
+}
+dialog.confirm::backdrop {
+  background: rgba(42, 29, 51, 0.55);
+  backdrop-filter: blur(4px);
+}
+dialog.confirm[open] {
+  animation: confirm-in 0.18s ease-out;
+}
+
+.confirm-box {
+  background: var(--cream);
+  border-radius: var(--radius);
+  padding: 32px 28px 26px;
+  text-align: center;
+  box-shadow: 0 24px 60px rgba(42, 29, 51, 0.35);
+}
+.confirm-icon {
+  display: grid;
+  place-items: center;
+  width: 56px;
+  height: 56px;
+  margin: 0 auto 16px;
+  border-radius: 50%;
+  background: var(--gold);
+  color: var(--purple);
+  font: 800 1.6rem var(--serif);
+}
+.confirm-title {
+  font-size: 1.6rem;
+  margin: 0 0 8px;
+}
+.confirm-text {
+  margin: 0 0 24px;
+}
+.confirm-actions {
+  display: flex;
+  gap: 10px;
+}
+.confirm-actions .btn {
+  flex: 1;
+}
+
+@keyframes confirm-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
 /* ---------- Responsif ---------- */
+@media (max-width: 1000px) {
+  .item {
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
+  .item-price {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px 18px;
+  }
+  .item-actions .btn {
+    flex: 1;
+  }
+}
 @media (max-width: 760px) {
   .auth {
     grid-template-columns: 1fr;
@@ -744,6 +916,11 @@ td input {
     padding: 24px;
   }
 }
+@media (max-width: 560px) {
+  .item-fields {
+    grid-template-columns: 1fr;
+  }
+}
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;
@@ -753,5 +930,53 @@ td input {
   }
   .grid > .card:hover {
     transform: none;
+  }
+  dialog.confirm[open] {
+    animation: none;
+  }
+}
+
+/* =========================================================
+   LOGIN & REGISTER: pas satu layar, motor di tengah
+   ========================================================= */
+.auth {
+  height: calc(100vh - 88px);
+  height: calc(100dvh - 88px);
+  min-height: 560px;
+} /* 88px = jarak atas+bawah .wrap */
+.auth-side {
+  padding: 32px 48px;
+  outline: var(--purple) 2px solid;
+}
+.auth-brand {
+  margin: 0 0 24px;
+  font-size: 1.6rem;
+  /* font: italic 800 1.6rem var(--serif); */
+  color: var(--purple);
+}
+
+.auth-bike {
+  display: block;
+  width: 78%;
+  max-width: 340px; /* ubah angka ini untuk memperbesar / memperkecil motor */
+  height: auto;
+  max-height: 40vh; /* mengecil otomatis di layar pendek */
+  min-height: 0;
+  object-fit: contain;
+  margin: 16px auto; /* auto kiri-kanan = tepat di tengah panel kuning */
+  transform: translateX(-8%); /* koreksi ruang kosong di sisi kanan foto */
+}
+
+@media (max-width: 760px) {
+  .auth {
+    height: auto;
+    min-height: 0;
+  } /* di HP boleh memanjang ke bawah */
+  .auth-side {
+    padding: 36px 24px;
+  }
+  .auth-bike {
+    max-height: none;
+    width: 70%;
   }
 }

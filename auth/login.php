@@ -28,12 +28,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $err = 'Username atau password salah.';
     }
 }
+
 $base = '../'; $public = true; $title = 'Masuk';
+$hasImage = file_exists(__DIR__ . '/../assets/img/hero.png');
 include '../includes/header.php';
 ?>
 <div class="auth">
   <section class="auth-side">
+    <p class="auth-brand">ModifTrack</p>
     <h1>Stay calm &amp; build classy.</h1>
+    <?php if ($hasImage): ?>
+      <img class="auth-bike" src="../assets/img/hero.png" alt="Motor modifikasi">
+    <?php endif; ?>
     <p>Rencanakan modifikasi tanpa kejutan biaya.</p>
     <div class="dots" aria-hidden="true"><i></i><i></i><i></i></div>
   </section>
