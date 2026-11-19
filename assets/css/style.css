@@ -980,3 +980,252 @@ dialog.confirm[open] {
     width: 70%;
   }
 }
+
+/* =========================================================
+   LANDING PAGE: background kuning penuh
+   (:has() hanya aktif di halaman yang punya .lp tanpa .shell,
+   jadi halaman internal, login, dan register tidak terpengaruh)
+   ========================================================= */
+body:has(.lp:not(.shell)) {
+  background: var(--gold);
+}
+
+.lp:not(.shell) {
+  border-radius: 0;
+}
+.lp:not(.shell) ~ .lp-info {
+  padding-inline: 32px;
+}
+.lp-info .card {
+  box-shadow: 0 10px 28px rgba(92, 63, 111, 0.18);
+}
+.lp-info:last-of-type {
+  padding-bottom: 24px;
+}
+
+/* =========================================================
+   HALAMAN SETELAH LOGIN: background kuning penuh
+   (hanya berlaku di halaman dengan kerangka .shell,
+   jadi landing page, login, dan register tidak terpengaruh)
+   ========================================================= */
+body:has(.shell) {
+  background: var(--gold);
+}
+
+.shell {
+  border-radius: 0;
+  margin-bottom: 0;
+  padding-bottom: 64px;
+}
+.shell .card {
+  box-shadow: 0 10px 28px rgba(92, 63, 111, 0.18);
+}
+.shell .item {
+  background: var(--cream);
+}
+.shell tr:hover > td {
+  background: var(--cream);
+}
+.shell .thumb,
+.shell .thumb-sm {
+  background: var(--cream);
+}
+
+/* =========================================================
+   STRUK ESTIMASI (build plan)
+   ========================================================= */
+.receipt {
+  position: relative;
+  max-width: 420px;
+  margin: 36px auto 48px;
+  padding: 30px 26px 34px;
+  background: #fffdf8;
+  color: var(--ink);
+  font:
+    0.88rem/1.5 "Courier New",
+    Courier,
+    monospace;
+  box-shadow: 0 14px 34px rgba(92, 63, 111, 0.25);
+}
+/* tepi bawah bergerigi seperti kertas struk */
+.receipt::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -8px;
+  height: 8px;
+  background: radial-gradient(circle at 7px 0, #fffdf8 7px, transparent 7.5px) 0
+    0 / 14px 8px repeat-x;
+}
+
+.rc-head {
+  text-align: center;
+  padding-bottom: 14px;
+  border-bottom: 2px dashed var(--muted);
+}
+.rc-brand {
+  margin: 0;
+  font: italic 800 1.7rem var(--serif);
+  color: var(--purple);
+}
+.rc-sub {
+  margin: 2px 0 0;
+  color: var(--muted);
+}
+
+.rc-meta {
+  margin: 14px 0;
+  padding-bottom: 14px;
+  border-bottom: 1px dashed var(--muted);
+}
+.rc-meta div {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+}
+.rc-meta dt {
+  color: var(--muted);
+}
+.rc-meta dd {
+  margin: 0;
+  font-weight: 700;
+  text-align: right;
+  overflow-wrap: anywhere;
+}
+
+.rc-block {
+  padding-bottom: 12px;
+  margin-bottom: 12px;
+  border-bottom: 1px dashed var(--muted);
+}
+.rc-vehicle {
+  margin: 0 0 8px;
+  font-weight: 700;
+  color: var(--purple);
+}
+
+.rc-line {
+  display: flex;
+  justify-content: space-between;
+  gap: 14px;
+}
+.rc-line span:first-child {
+  overflow-wrap: anywhere;
+}
+.rc-line span:last-child {
+  white-space: nowrap;
+}
+.rc-jasa {
+  padding-left: 14px;
+  margin-bottom: 6px;
+  color: var(--muted);
+  font-size: 0.82rem;
+}
+.rc-sum {
+  margin-top: 8px;
+  padding-top: 6px;
+  border-top: 1px dotted var(--muted);
+  font-weight: 700;
+}
+
+.rc-totals {
+  padding-top: 4px;
+}
+.rc-grand {
+  margin-top: 10px;
+  padding: 10px 0 0;
+  border-top: 2px solid var(--ink);
+  font-size: 1.2rem;
+  font-weight: 700;
+}
+.rc-grand span:last-child {
+  color: var(--purple);
+}
+
+.rc-foot {
+  margin: 20px 0 0;
+  text-align: center;
+  color: var(--muted);
+  font-size: 0.78rem;
+}
+
+@media (max-width: 480px) {
+  .receipt {
+    margin-inline: 8px;
+    padding: 24px 18px 30px;
+  }
+}
+
+/* =========================================================
+   BUILD PLAN: tabel di kiri, struk di kanan (layar lebar)
+   ========================================================= */
+.part-cell {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 170px;
+}
+.build-layout {
+  display: grid;
+  gap: 24px;
+  padding-bottom: 8px;
+}
+
+@media (min-width: 1100px) {
+  body:has(.build-layout) .shell {
+    max-width: 1480px;
+  }
+  body:has(.build-layout) .lp {
+    padding-inline: 24px;
+  }
+
+  .build-layout {
+    grid-template-columns: minmax(0, 1fr) 330px;
+    gap: 20px;
+    align-items: start;
+  }
+  .build-layout .receipt {
+    position: sticky;
+    top: 24px; /* struk ikut menempel saat di-scroll */
+    width: 100%;
+    max-width: none;
+    margin: 0;
+  }
+
+  /* tabel dirapatkan agar muat tanpa geser samping */
+  .build-main .card {
+    padding: 20px 16px;
+  }
+  .build-main .table-scroll table {
+    min-width: 0;
+  }
+  .build-main th,
+  .build-main td {
+    padding: 10px 8px;
+  }
+  .build-main .part-cell {
+    min-width: 0;
+    gap: 10px;
+  }
+  .build-main .thumb-sm {
+    width: 48px;
+    height: 48px;
+  }
+  .build-main td input,
+  .build-main td select {
+    min-width: 0;
+    width: 100%;
+  }
+
+  /* tombol aksi ditumpuk agar kolomnya sempit */
+  .build-main td.num form {
+    display: inline-flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .build-main td.num form .btn {
+    width: 100%;
+    text-align: center;
+  }
+}

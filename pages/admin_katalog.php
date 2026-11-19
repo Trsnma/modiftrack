@@ -67,6 +67,7 @@ $title = 'Admin Katalog'; $active = 'admin';
 include '../includes/header.php';
 ?>
 <h1>Kelola katalog</h1>
+<p><a class="btn btn-ghost btn-sm" href="admin_import_csv.php">Import data (CSV)</a></p>
 <form method="post" enctype="multipart/form-data" class="card">
   <h3><?= $edit ? 'Ubah part #' . (int)$f['id'] : 'Tambah part' ?></h3>
   <?= csrf_field() ?><input type="hidden" name="aksi" value="simpan"><input type="hidden" name="id" value="<?= (int)$f['id'] ?>">

@@ -17,18 +17,23 @@ function hapus_foto(?string $nama): void {
     }
 }
 
-/** Proses upload. Return nama file baru, atau throw RuntimeException (pesan aman untuk user). */
+/** Upload dari form: cek status upload, lalu serahkan ke proses_foto(). */
 function simpan_foto(array $f): string {
     if (($f['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_OK || !is_uploaded_file($f['tmp_name'])) {
         throw new RuntimeException('Upload foto gagal. Coba lagi.');
     }
-    if ($f['size'] > FOTO_MAX_BYTES) {
+    return proses_foto($f['tmp_name']);
+}
+
+/** Validasi isi file, gambar ulang, simpan dengan nama acak. Return nama file baru. */
+function proses_foto(string $path): string {
+    if (filesize($path) > FOTO_MAX_BYTES) {
         throw new RuntimeException('Ukuran foto maksimal 2 MB.');
     }
 
-    // Tipe ditentukan dari ISI file, bukan dari nama/ekstensi kiriman browser
-    $mime = (new finfo(FILEINFO_MIME_TYPE))->file($f['tmp_name']);
-    $info = getimagesize($f['tmp_name']);
+    // Tipe ditentukan dari ISI file, bukan dari nama/ekstensi
+    $mime = (new finfo(FILEINFO_MIME_TYPE))->file($path);
+    $info = getimagesize($path);
     $tipe = ['image/jpeg' => 'jpg', 'image/png' => 'png', 'image/webp' => 'webp'][$mime] ?? null;
     if (!$tipe || !$info || $info['mime'] !== $mime) {
         throw new RuntimeException('Format foto harus JPG, PNG, atau WebP.');
@@ -39,7 +44,7 @@ function simpan_foto(array $f): string {
     }
 
     $loader = ['jpg' => 'imagecreatefromjpeg', 'png' => 'imagecreatefrompng', 'webp' => 'imagecreatefromwebp'][$tipe];
-    $src = function_exists($loader) ? @$loader($f['tmp_name']) : false;
+    $src = function_exists($loader) ? @$loader($path) : false;
     if (!$src) {
         throw new RuntimeException('Foto rusak atau format tidak didukung server.');
     }
@@ -60,13 +65,13 @@ function simpan_foto(array $f): string {
 
     if (!is_dir(UPLOAD_DIR)) mkdir(UPLOAD_DIR, 0755, true);
     $nama = bin2hex(random_bytes(16)) . '.' . $tipe;   // nama & ekstensi dibuat server
-    $path = UPLOAD_DIR . $nama;
+    $tujuan = UPLOAD_DIR . $nama;
     $ok = match ($tipe) {
-        'jpg'  => imagejpeg($dst, $path, 85),
-        'png'  => imagepng($dst, $path, 6),
-        'webp' => imagewebp($dst, $path, 85),
+        'jpg'  => imagejpeg($dst, $tujuan, 85),
+        'png'  => imagepng($dst, $tujuan, 6),
+        'webp' => imagewebp($dst, $tujuan, 85),
     };
     if (!$ok) throw new RuntimeException('Gagal menyimpan foto.');
-    chmod($path, 0644);
+    chmod($tujuan, 0644);
     return $nama;
 }
