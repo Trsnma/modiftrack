@@ -68,3 +68,29 @@ document.querySelectorAll(".swatch").forEach(function (btn) {
     });
   });
 });
+
+/* ---------- 3. Dropdown model bergantung pada merk ---------- */
+document.querySelectorAll("select[data-models]").forEach(function (merk) {
+  var model = document.getElementById(merk.dataset.target);
+  var data = JSON.parse(merk.dataset.models);
+
+  function isiModel() {
+    var terpilih = model.dataset.selected || "";
+    var daftar = data[merk.value] || [];
+    model.innerHTML = "";
+    var awal = document.createElement("option");
+    awal.value = "";
+    awal.textContent = daftar.length ? "Pilih model" : "Pilih merk dulu";
+    model.appendChild(awal);
+    daftar.forEach(function (nama) {
+      var opt = document.createElement("option");
+      opt.textContent = nama; // textContent: aman dari XSS
+      if (nama.toLowerCase() === terpilih.toLowerCase()) opt.selected = true;
+      model.appendChild(opt);
+    });
+    model.disabled = !daftar.length;
+    model.dataset.selected = ""; // pilihan awal hanya dipakai sekali
+  }
+  merk.addEventListener("change", isiModel);
+  isiModel();
+});

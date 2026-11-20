@@ -1,6 +1,7 @@
 <?php
 require_once '../includes/auth.php';
 require_once '../includes/upload.php';
+require_once '../includes/models.php';
 require_admin();
 $kats = ['Eksterior', 'Interior', 'Kaki-kaki', 'Performa'];
 
@@ -17,19 +18,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     } elseif ($act === 'simpan') {
         $nama = trim($_POST['nama_part'] ?? ''); $kat = $_POST['kategori'] ?? '';
-        $merk = trim($_POST['merk'] ?? ''); $model = trim($_POST['model'] ?? '');
+        $mm   = model_find(trim($_POST['merk'] ?? ''), trim($_POST['model'] ?? ''));   // wajib ada di master
         $tmin = filter_var($_POST['tahun_min'] ?? '', FILTER_VALIDATE_INT);
         $tmax = filter_var($_POST['tahun_max'] ?? '', FILTER_VALIDATE_INT);
         $harga = filter_var($_POST['harga'] ?? '', FILTER_VALIDATE_INT, ['options' => ['min_range' => 0]]);
         $jasa = filter_var($_POST['jasa'] ?? '', FILTER_VALIDATE_INT, ['options' => ['min_range' => 0]]);
         $balik = 'admin_katalog.php' . ($id ? '?edit=' . $id : '');
 
-        if ($nama === '' || mb_strlen($nama) > 100 || !in_array($kat, $kats, true) || $merk === '' || $model === ''
-            || mb_strlen($merk) > 50 || mb_strlen($model) > 50 || $tmin === false || $tmax === false
-            || $tmin > $tmax || $harga === false || $jasa === false) {
-            flash('err', 'Data tidak valid. Periksa semua kolom (tahun min tidak boleh lebih besar dari tahun max).');
+        if ($nama === '' || mb_strlen($nama) > 100 || !in_array($kat, $kats, true) || !$mm
+            || $tmin === false || $tmax === false || $tmin > $tmax || $harga === false || $jasa === false) {
+            flash('err', 'Data tidak valid. Pilih merk dan model dari daftar, dan pastikan tahun min tidak lebih besar dari tahun max.');
             redirect($balik);
         }
+        $merk = $mm['merk']; $model = $mm['model'];
 
         // Foto: opsional. Jika ada, wajib lolos validasi di includes/upload.php
         $lama = $id ? row('SELECT foto FROM parts_catalog WHERE id=?', 'i', [$id]) : null;
@@ -63,20 +64,37 @@ $edit = isset($_GET['edit']) ? row('SELECT * FROM parts_catalog WHERE id=?', 'i'
 $f = $edit ?? ['id' => 0, 'nama_part' => '', 'kategori' => '', 'kompatibel_merk' => '', 'kompatibel_model' => '',
                'tahun_min' => '', 'tahun_max' => '', 'harga_part' => '', 'estimasi_jasa' => '', 'foto' => null];
 $parts = rows('SELECT * FROM parts_catalog ORDER BY id DESC');
+$map = model_map();
 $title = 'Admin Katalog'; $active = 'admin';
 include '../includes/header.php';
 ?>
 <h1>Kelola katalog</h1>
-<p><a class="btn btn-ghost btn-sm" href="admin_import_csv.php">Import data (CSV)</a></p>
+<p>
+  <a class="btn btn-ghost btn-sm" href="admin_model.php">Kelola merk &amp; model</a>
+  <a class="btn btn-ghost btn-sm" href="admin_import_csv.php">Import data (CSV)</a>
+</p>
 <form method="post" enctype="multipart/form-data" class="card">
   <h3><?= $edit ? 'Ubah part #' . (int)$f['id'] : 'Tambah part' ?></h3>
+  <?php if (!$map): ?>
+    <p class="muted">Belum ada merk dan model. Tambahkan dulu di <a href="admin_model.php">Kelola merk &amp; model</a>.</p>
+  <?php else: ?>
   <?= csrf_field() ?><input type="hidden" name="aksi" value="simpan"><input type="hidden" name="id" value="<?= (int)$f['id'] ?>">
   <div class="form-row">
     <div><label for="nama_part">Nama part</label><input id="nama_part" name="nama_part" maxlength="100" required value="<?= e($f['nama_part']) ?>"></div>
     <div><label for="kategori">Kategori</label>
       <select id="kategori" name="kategori"><?php foreach ($kats as $k): ?><option <?= $f['kategori'] === $k ? 'selected' : '' ?>><?= e($k) ?></option><?php endforeach; ?></select></div>
-    <div><label for="merk">Merk kompatibel</label><input id="merk" name="merk" maxlength="50" required value="<?= e($f['kompatibel_merk']) ?>"></div>
-    <div><label for="model">Model kompatibel</label><input id="model" name="model" maxlength="50" required value="<?= e($f['kompatibel_model']) ?>"></div>
+    <div>
+      <label for="merk">Merk kompatibel</label>
+      <select id="merk" name="merk" required data-target="model"
+              data-models="<?= e(json_encode($map, JSON_UNESCAPED_UNICODE)) ?>">
+        <option value="">Pilih merk</option>
+        <?php foreach (array_keys($map) as $m): ?><option <?= strcasecmp($f['kompatibel_merk'], $m) === 0 ? 'selected' : '' ?>><?= e($m) ?></option><?php endforeach; ?>
+      </select>
+    </div>
+    <div>
+      <label for="model">Model kompatibel</label>
+      <select id="model" name="model" required disabled data-selected="<?= e($f['kompatibel_model']) ?>"><option value="">Pilih merk dulu</option></select>
+    </div>
     <div><label for="tahun_min">Tahun min</label><input id="tahun_min" type="number" name="tahun_min" required value="<?= e($f['tahun_min']) ?>"></div>
     <div><label for="tahun_max">Tahun max</label><input id="tahun_max" type="number" name="tahun_max" required value="<?= e($f['tahun_max']) ?>"></div>
     <div><label for="harga">Harga part (Rp)</label><input id="harga" type="number" min="0" name="harga" required value="<?= e($f['harga_part']) ?>"></div>
@@ -92,6 +110,7 @@ include '../includes/header.php';
   <?php endif; ?>
   <p><button class="btn" type="submit">Simpan</button>
      <?php if ($edit): ?><a class="btn btn-ghost" href="admin_katalog.php">Batal</a><?php endif; ?></p>
+  <?php endif; ?>
 </form>
 <div class="card table-scroll">
 <table>

@@ -1,6 +1,8 @@
 <?php
 require_once '../includes/auth.php';
 require_once '../includes/upload.php';
+require_once '../includes/models.php';
+require_once '../includes/csv.php';
 require_admin();
 
 const IMPORT_DIR    = __DIR__ . '/../uploads/import/';
@@ -18,27 +20,6 @@ if (isset($_GET['template'])) {
     echo "Knalpot Racing Slip-on;Performa;Honda;Vario 150;2018;2024;1850000;150000;knalpot.jpg\r\n";
     echo "Jok Custom Kulit;Interior;Vespa;Primavera;2014;2024;1200000;100000;\r\n";
     exit;
-}
-
-/** Baca CSV menjadi array baris. Deteksi pemisah (; atau ,) dan encoding otomatis. */
-function baca_csv(string $path): array {
-    $isi = preg_replace('/^\xEF\xBB\xBF/', '', (string)file_get_contents($path));   // buang BOM
-    if (!mb_check_encoding($isi, 'UTF-8')) {
-        $isi = mb_convert_encoding($isi, 'UTF-8', 'Windows-1252');
-    }
-    $baris1 = strtok($isi, "\n");
-    $pemisah = substr_count($baris1, ';') > substr_count($baris1, ',') ? ';' : ',';
-
-    $fh = fopen('php://temp', 'r+');
-    fwrite($fh, $isi);
-    rewind($fh);
-    $hasil = [];
-    while (($r = fgetcsv($fh, 0, $pemisah, '"', '')) !== false) {
-        if ($r === [null]) continue;                       // lewati baris kosong
-        $hasil[] = array_map('trim', $r);
-    }
-    fclose($fh);
-    return $hasil;
 }
 
 /** Validasi satu baris. Return [data, pesanError]. */
@@ -90,8 +71,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             foreach ($data as $i => $r) {
                 $baris = array_combine($header, array_pad(array_slice($r, 0, count($header)), count($header), ''));
                 [$ok, $pesan] = validasi_baris($baris);
-                if ($pesan) $errors[] = 'Baris ' . ($i + 2) . ': ' . $pesan;
-                else $siap[] = $ok;
+                if (!$pesan) {
+                    $mm = model_find($ok[2], $ok[3]);     // merk & model harus ada di master
+                    if (!$mm) {
+                        $pesan = 'merk/model "' . $ok[2] . ' ' . $ok[3] . '" belum ada di Kelola merk & model';
+                    } else {
+                        $ok[2] = $mm['merk']; $ok[3] = $mm['model'];   // pakai penulisan baku dari master
+                    }
+                }
             }
 
             // Tahap 2: simpan dalam satu transaksi
