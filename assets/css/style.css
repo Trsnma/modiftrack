@@ -16,6 +16,7 @@
   --tint: #faf4fb;
   --radius: 28px;
   --shadow: 0 8px 24px rgba(92, 63, 111, 0.1);
+  --nav-h: 76px; /* tinggi navbar landing */
   --serif: "Playfair Display", Georgia, serif;
   --sans: "DM Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
 }
@@ -59,6 +60,42 @@ img {
 :focus-visible {
   outline: 3px solid var(--purple);
   outline-offset: 2px;
+}
+
+/* =========================================================
+   TRANSISI ANTAR HALAMAN
+   View transition (Chrome, Edge, Brave, Safari baru);
+   browser lama memakai fade-in (kelas .no-vt dari app.js)
+   ========================================================= */
+@view-transition {
+  navigation: auto;
+}
+::view-transition-old(root) {
+  animation: vt-out 0.25s ease-in both;
+}
+::view-transition-new(root) {
+  animation: vt-in 0.4s ease-out both;
+}
+@keyframes vt-out {
+  to {
+    opacity: 0;
+  }
+}
+@keyframes vt-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+}
+
+.no-vt body {
+  animation: page-in 0.4s ease-out;
+}
+@keyframes page-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
 }
 
 /* ---------- Layout umum ---------- */
@@ -230,6 +267,10 @@ img {
   background: #fbe3e3;
   color: #8b1f23;
 }
+.flash ul {
+  margin: 8px 0 0;
+  padding-left: 20px;
+}
 
 /* Kartu dalam grid (dashboard & katalog): sama tinggi, tombol di dasar */
 .grid > .card {
@@ -294,6 +335,10 @@ select {
   background-repeat: no-repeat;
   background-position: right 14px center;
 }
+select:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
 input[type="file"] {
   padding: 8px 12px;
   font-size: 0.85rem;
@@ -302,7 +347,7 @@ form.card .btn {
   margin-top: 4px;
 }
 
-/* ---------- Tabel (Garasi & Admin) ---------- */
+/* ---------- Tabel ---------- */
 .card.table-scroll {
   padding: 10px 18px;
 }
@@ -384,16 +429,26 @@ td input {
   color: var(--muted);
   font-size: 0.8rem;
 }
+.part-cell {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 170px;
+}
 
-/* ---------- Halaman login & register ---------- */
+/* =========================================================
+   LOGIN & REGISTER: pas satu layar, motor di tengah
+   ========================================================= */
 .auth {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  min-height: 100vh;
-}
+  height: calc(100vh - 88px);
+  height: calc(100dvh - 88px);
+  min-height: 560px;
+} /* 88px = jarak atas+bawah .wrap */
 .auth-side {
   background: var(--gold);
-  padding: 56px 48px;
+  padding: 32px 48px;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -401,6 +456,22 @@ td input {
 .auth-side p {
   color: var(--purple);
   max-width: 36ch;
+}
+.auth-brand {
+  margin: 0 0 24px;
+  font: italic 800 1.6rem var(--serif);
+  color: var(--purple);
+}
+.auth-bike {
+  display: block;
+  width: 78%;
+  max-width: 340px; /* ukuran motor */
+  height: auto;
+  max-height: 40vh; /* mengecil otomatis di layar pendek */
+  min-height: 0;
+  object-fit: contain;
+  margin: 16px auto;
+  transform: translateX(-8%); /* geser posisi: makin negatif makin ke kiri */
 }
 .auth-form {
   display: flex;
@@ -450,21 +521,17 @@ td input {
 }
 
 /* =========================================================
-   LANDING PAGE (index.php) & KERANGKA HALAMAN INTERNAL
+   KERANGKA KUNING PENUH
+   Dipakai landing page (.land) dan halaman setelah login (.lp)
    ========================================================= */
-.lp {
-  --bike: #f9d13c;
+body:has(.lp),
+body:has(.land) {
+  --gutter: clamp(24px, 7vw, 128px); /* jarak isi dari tepi layar */
+  --nav-gap: clamp(12px, 2vw, 28px); /* jarak navbar dari tepi layar */
   background: var(--gold);
-  color: var(--purple);
-  border-radius: 24px;
-  padding: 22px 32px 32px;
-}
-.lp h1,
-.lp h2 {
-  font-weight: 800;
 }
 
-/* Navbar (dipakai landing dan halaman internal) */
+/* Navbar (dipakai landing & halaman setelah login) */
 .lp-nav {
   display: flex;
   align-items: center;
@@ -487,21 +554,21 @@ td input {
   gap: 28px;
 }
 .lp-nav nav a {
-  font-size: 0.78rem;
+  padding: 4px 2px;
+  border-bottom: 3px solid transparent;
+  font-size: 1rem;
   font-weight: 700;
   text-decoration: none;
-  padding-bottom: 3px;
-  border-bottom: 2px solid transparent;
+  transition: border-color 0.15s;
 }
-.lp-nav nav a.on,
 .lp-nav nav a:hover {
-  border-color: var(--purple);
+  border-bottom-color: #fff;
 }
 .lp-login {
-  border: 1.5px solid var(--purple);
+  border: 2px solid var(--purple);
   border-radius: 999px;
-  padding: 5px 22px;
-  font-size: 0.75rem;
+  padding: 9px 30px;
+  font-size: 1rem;
   font-weight: 700;
   text-decoration: none;
 }
@@ -510,13 +577,118 @@ td input {
   color: var(--gold);
 }
 
-/* Judul + pilihan warna */
+/* Kerangka halaman setelah login */
+.lp {
+  background: var(--gold);
+  color: var(--purple);
+  padding: 22px var(--gutter) 48px;
+}
+.lp .lp-nav {
+  margin-inline: calc(var(--nav-gap) - var(--gutter));
+}
+.lp h1,
+.lp h2 {
+  font-weight: 800;
+}
+.lp .hero {
+  background: none;
+  padding: 0;
+  margin-bottom: 24px;
+}
+.lp .hero p {
+  max-width: 52ch;
+}
+.lp .panel {
+  border-radius: 36px;
+  padding: 32px 36px;
+}
+.lp .card {
+  border: 0;
+  box-shadow: 0 10px 28px rgba(92, 63, 111, 0.18);
+}
+.lp .card.table-scroll {
+  padding: 14px 22px;
+}
+.lp tr:hover > td {
+  background: var(--cream);
+}
+.lp .thumb,
+.lp .thumb-sm {
+  background: var(--cream);
+}
+
+.shell {
+  width: 100%;
+  max-width: none;
+  margin: 0;
+  padding-bottom: 64px;
+}
+.content {
+  margin-top: 32px;
+}
+.content > h1 {
+  font-size: clamp(2rem, 5vw, 3.4rem);
+  font-weight: 800;
+  margin: 0 0 20px;
+}
+.content > h2 {
+  margin-top: 28px;
+}
+
+/* =========================================================
+   LANDING PAGE (index.php)
+   Setiap section memenuhi satu layar; navbar menempel di atas
+   ========================================================= */
+html:has(.land) {
+  scroll-snap-type: y proximity;
+}
+body:has(.land) .wrap {
+  max-width: none;
+  padding: 0;
+}
+
+.site-nav {
+  position: fixed;
+  inset: 0 0 auto 0;
+  z-index: 50;
+  height: var(--nav-h);
+  flex-wrap: nowrap;
+  padding-inline: var(--nav-gap);
+  background: var(--gold);
+  transition: box-shadow 0.2s;
+}
+.site-nav.is-scrolled {
+  box-shadow: 0 6px 20px rgba(92, 63, 111, 0.18);
+}
+
+.sec {
+  min-height: 100vh;
+  min-height: 100svh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: calc(var(--nav-h) + 24px) var(--gutter) 48px;
+  color: var(--purple);
+  scroll-snap-align: start;
+}
+.sec--cream {
+  background: var(--cream);
+}
+.sec h1,
+.sec h2 {
+  font-weight: 800;
+}
+.sec > h2 {
+  font-size: clamp(2rem, 4vw, 3rem);
+  margin-bottom: 20px;
+}
+
+/* Hero */
 .lp-top {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
   gap: 24px;
-  margin-top: 36px;
 }
 .lp-top h1 {
   font-size: clamp(2.2rem, 6vw, 4rem);
@@ -562,7 +734,6 @@ td input {
     0 0 0 5px var(--purple);
 }
 
-/* Panel ungu + kendaraan */
 .lp-stage {
   position: relative;
   margin-top: 90px;
@@ -647,392 +818,286 @@ td input {
   transform: translateX(-62%);
   pointer-events: none;
 }
-.scooter .bike {
-  fill: var(--bike);
-}
 
-.lp-info {
-  margin-top: 32px;
-}
-
-/* Kerangka halaman internal (Home, Garasi, Katalog, Build Plan, Admin) */
-.shell {
-  width: calc(100% - 40px);
-  max-width: 1100px;
-  margin: 24px auto 64px;
-}
-.content {
-  margin-top: 32px;
-}
-.content > h1 {
-  font-size: clamp(2rem, 5vw, 3.4rem);
-  font-weight: 800;
-  margin: 0 0 20px;
-}
-.content > h2 {
+/* Statistik (kotak transparan di bawah hero) */
+.land-stats {
+  display: grid;
+  gap: 16px;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
   margin-top: 28px;
 }
-.lp .hero {
-  background: none;
-  padding: 0;
-  margin-bottom: 24px;
-}
-.lp .hero p {
-  max-width: 52ch;
-}
-.lp .panel {
-  border-radius: 36px;
-  padding: 32px 36px;
-}
-.lp .card {
-  border: 0;
-}
-.lp .card.table-scroll {
-  padding: 14px 22px;
-}
-
-/* =========================================================
-   BUILD PLAN: satu kartu per part
-   ========================================================= */
-.build-head {
-  display: flex;
-  justify-content: space-between;
-  align-items: baseline;
-  gap: 12px;
-  flex-wrap: wrap;
-  margin-bottom: 16px;
-}
-.build-head h2,
-.build-head p {
-  margin: 0;
-}
-
-.items {
-  display: grid;
-  gap: 12px;
-}
-.item {
-  display: grid;
-  grid-template-columns:
-    minmax(220px, 1.3fr) minmax(140px, 0.7fr) minmax(300px, 1.6fr)
-    auto;
-  align-items: center;
-  gap: 18px;
-  padding: 14px 18px;
-  background: var(--tint);
-  border-left: 6px solid var(--line);
+.land-stat {
+  padding: 16px 24px;
   border-radius: 20px;
-}
-.item[data-status="rencana"] {
-  border-left-color: var(--muted);
-}
-.item[data-status="sudah-dibeli"] {
-  border-left-color: var(--gold);
-}
-.item[data-status="terpasang"] {
-  border-left-color: var(--purple);
-}
-
-.item-main {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  min-width: 0;
-}
-.item-main .thumb-sm {
-  width: 72px;
-  height: 72px;
-  background: #fff;
-}
-.item-name {
-  display: block;
-  font-weight: 700;
-  color: var(--ink);
-  margin-bottom: 4px;
-}
-
-.item-price {
-  display: grid;
-  gap: 2px;
-  font-size: 0.85rem;
-  color: var(--muted);
-}
-.item-price b {
-  color: var(--purple);
-  font-size: 1rem;
-}
-
-.item-fields {
-  display: grid;
-  grid-template-columns: minmax(130px, 0.8fr) 1.2fr;
-  gap: 12px;
-}
-.item-fields label {
-  margin: 0;
-  font-size: 0.75rem;
-  color: var(--muted);
-}
-.item-fields select,
-.item-fields input {
-  margin-top: 4px;
-  background-color: #fff;
-}
-
-.item-actions {
-  display: flex;
-  gap: 8px;
-}
-
-/* =========================================================
-   DIALOG KONFIRMASI (menggantikan popup bawaan browser)
-   ========================================================= */
-dialog.confirm {
-  width: calc(100% - 32px);
-  max-width: 420px;
-  padding: 0;
-  border: 0;
-  background: transparent;
-  overflow: visible;
-}
-dialog.confirm::backdrop {
-  background: rgba(42, 29, 51, 0.55);
+  border: 2px solid rgba(92, 63, 111, 0.28);
+  background: rgba(92, 63, 111, 0.06);
   backdrop-filter: blur(4px);
 }
-dialog.confirm[open] {
-  animation: confirm-in 0.18s ease-out;
+.land-stat b {
+  display: block;
+  font: 800 2rem/1.1 var(--serif);
+  font-style: italic;
+}
+.land-stat span {
+  font-size: 0.9rem;
+  font-weight: 500;
 }
 
-.confirm-box {
-  background: var(--cream);
-  border-radius: var(--radius);
-  padding: 32px 28px 26px;
-  text-align: center;
-  box-shadow: 0 24px 60px rgba(42, 29, 51, 0.35);
+/* About: galeri motor 3D (motor maju, lalu mundur ke belakang) */
+.fleet {
+  position: relative;
+  height: clamp(200px, 40vh, 420px);
+  margin-bottom: 8px;
+  perspective: 1000px;
 }
-.confirm-icon {
+.fleet-item {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  height: 100%;
+  width: auto;
+  max-width: 70%;
+  object-fit: contain;
+  transform: translateX(-50%) translateZ(-320px) scale(0.3); /* posisi jauh di belakang (tersembunyi) */
+  opacity: 0;
+  pointer-events: none;
+  transition:
+    transform 0.9s cubic-bezier(0.2, 0.7, 0.2, 1),
+    opacity 0.9s ease,
+    filter 0.9s ease;
+}
+.fleet-item[data-rel="0"] {
+  /* motor di depan */
+  transform: translateX(-50%) translateZ(0) scale(1);
+  opacity: 1;
+  z-index: 3;
+  filter: drop-shadow(0 24px 24px rgba(42, 29, 51, 0.35));
+}
+.fleet-item[data-rel="1"] {
+  /* motor berikutnya menunggu di belakang */
+  transform: translateX(-50%) translateY(-6%) translateZ(-220px) scale(0.62);
+  opacity: 0.35;
+  z-index: 2;
+  filter: blur(2px);
+}
+.fleet-name {
+  margin: 0 0 16px;
+  text-align: center;
+  font: italic 800 1.5rem var(--serif);
+}
+.about-text {
+  max-width: 70ch;
+  margin: 0 auto;
+  text-align: center;
+  font-size: 1.05rem;
+}
+
+/* Tips */
+.tip-grid {
+  display: grid;
+  gap: 24px;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+}
+.tip {
+  background: #fff;
+  border-radius: 24px;
+  padding: 32px 28px;
+  box-shadow: 0 10px 28px rgba(92, 63, 111, 0.18);
+  transition:
+    transform 0.25s ease,
+    box-shadow 0.25s ease;
+}
+.tip:hover {
+  transform: translateY(-10px);
+  box-shadow: 0 22px 40px rgba(92, 63, 111, 0.28);
+}
+.tip-ico {
   display: grid;
   place-items: center;
   width: 56px;
   height: 56px;
-  margin: 0 auto 16px;
+  margin-bottom: 18px;
+  border-radius: 16px;
+  background: var(--gold);
+  color: var(--purple);
+}
+.tip-ico svg {
+  width: 28px;
+  height: 28px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.tip p {
+  margin: 0;
+}
+
+/* Showcase komunitas */
+.proj {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  background: var(--purple);
+  color: var(--cream);
+  border-radius: var(--radius);
+  padding: 28px;
+  transition: transform 0.25s ease;
+}
+.proj:hover {
+  transform: translateY(-6px);
+}
+.proj-head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.proj-head h3 {
+  margin: 0;
+  color: var(--gold);
+  font-size: 1.15rem;
+}
+.proj-bike {
+  font-size: 0.85rem;
+  color: #d9c8e2;
+}
+.avatar {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
   border-radius: 50%;
   background: var(--gold);
   color: var(--purple);
-  font: 800 1.6rem var(--serif);
+  font: 800 1.1rem var(--serif);
 }
-.confirm-title {
-  font-size: 1.6rem;
-  margin: 0 0 8px;
+.proj blockquote {
+  margin: 0;
 }
-.confirm-text {
-  margin: 0 0 24px;
-}
-.confirm-actions {
+.proj-total {
   display: flex;
-  gap: 10px;
+  justify-content: space-between;
+  gap: 12px;
+  margin: auto 0 0;
+  padding-top: 14px;
+  border-top: 1px dashed rgba(253, 246, 238, 0.35);
+  font-weight: 700;
 }
-.confirm-actions .btn {
-  flex: 1;
-}
-
-@keyframes confirm-in {
-  from {
-    opacity: 0;
-    transform: translateY(8px) scale(0.97);
-  }
-  to {
-    opacity: 1;
-    transform: none;
-  }
+.proj-total b {
+  color: var(--gold);
 }
 
-/* ---------- Responsif ---------- */
-@media (max-width: 1000px) {
-  .item {
-    grid-template-columns: 1fr;
-    gap: 14px;
-  }
-  .item-price {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 4px 18px;
-  }
-  .item-actions .btn {
-    flex: 1;
-  }
+/* Footer */
+.land-foot {
+  padding: 56px var(--gutter) 28px;
+  background: var(--purple);
+  color: var(--cream);
+  scroll-snap-align: end;
 }
-@media (max-width: 760px) {
-  .auth {
-    grid-template-columns: 1fr;
+.foot-grid {
+  display: grid;
+  gap: 32px;
+  grid-template-columns: 1.4fr 1fr 1fr;
+}
+.foot-brand {
+  margin: 0 0 8px;
+  font: italic 800 1.8rem var(--serif);
+  color: var(--gold);
+}
+.land-foot p {
+  margin: 0;
+}
+.land-foot h3 {
+  margin-bottom: 12px;
+  font: 700 1rem var(--sans);
+  color: var(--gold);
+}
+.land-foot ul {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.land-foot a {
+  color: var(--cream);
+  text-decoration: none;
+}
+.land-foot a:hover {
+  text-decoration: underline;
+  text-decoration-color: var(--gold);
+  text-underline-offset: 4px;
+}
+.foot-copy {
+  margin-top: 36px;
+  padding-top: 20px;
+  border-top: 1px solid rgba(253, 246, 238, 0.2);
+  font-size: 0.85rem;
+}
+
+/* =========================================================
+   BUILD PLAN: tabel di kiri, struk di kanan
+   ========================================================= */
+.build-layout {
+  display: grid;
+  gap: 24px;
+  padding-bottom: 8px;
+}
+
+@media (min-width: 1100px) {
+  .build-layout {
+    grid-template-columns: minmax(0, 1fr) 330px;
+    gap: 20px;
+    align-items: start;
   }
-  .auth-side {
-    padding: 36px 24px;
-  }
-  .hero {
-    padding: 24px;
+  .build-layout .receipt {
+    position: sticky;
+    top: 24px; /* struk ikut menempel saat di-scroll */
+    width: 100%;
+    max-width: none;
+    margin: 0;
   }
 
-  .lp {
-    padding: 18px;
+  /* tabel dirapatkan agar muat tanpa geser samping */
+  .build-main .card {
+    padding: 20px 16px;
   }
-  .lp-nav nav {
-    flex-wrap: wrap;
-    gap: 16px;
-    order: 3;
-    flex-basis: 100%;
+  .build-main .table-scroll table {
+    min-width: 0;
   }
-  .lp-top {
+  .build-main th,
+  .build-main td {
+    padding: 10px 8px;
+  }
+  .build-main .part-cell {
+    min-width: 0;
+    gap: 10px;
+  }
+  .build-main .thumb-sm {
+    width: 48px;
+    height: 48px;
+  }
+  .build-main td input,
+  .build-main td select {
+    min-width: 0;
+    width: 100%;
+  }
+
+  /* tombol aksi ditumpuk agar kolomnya sempit */
+  .build-main td.num form {
+    display: inline-flex;
     flex-direction: column;
-    margin-top: 24px;
+    gap: 6px;
   }
-  .lp-colors {
-    text-align: left;
-  }
-  .swatches {
-    justify-content: flex-start;
-  }
-  .lp-stage {
-    margin-top: 24px;
-  }
-  .lp-panel {
-    grid-template-columns: 1fr;
-    padding-top: 220px;
-  }
-  .lp-brand {
-    justify-self: start;
-  }
-  .scooter {
-    width: 88%;
-    top: -10px;
-    bottom: auto;
-    transform: translateX(-50%);
-  }
-
-  .shell {
-    width: calc(100% - 24px);
-    margin-top: 12px;
-  }
-  .lp .panel {
-    padding: 24px;
-  }
-}
-@media (max-width: 560px) {
-  .item-fields {
-    grid-template-columns: 1fr;
-  }
-}
-@media (prefers-reduced-motion: reduce) {
-  html {
-    scroll-behavior: auto;
-  }
-  * {
-    transition: none !important;
-  }
-  .grid > .card:hover {
-    transform: none;
-  }
-  dialog.confirm[open] {
-    animation: none;
+  .build-main td.num form .btn {
+    width: 100%;
+    text-align: center;
   }
 }
 
 /* =========================================================
-   LOGIN & REGISTER: pas satu layar, motor di tengah
-   ========================================================= */
-.auth {
-  height: calc(100vh - 88px);
-  height: calc(100dvh - 88px);
-  min-height: 560px;
-} /* 88px = jarak atas+bawah .wrap */
-.auth-side {
-  padding: 32px 48px;
-  outline: var(--purple) 2px solid;
-}
-.auth-brand {
-  margin: 0 0 24px;
-  font-size: 1.6rem;
-  /* font: italic 800 1.6rem var(--serif); */
-  color: var(--purple);
-}
-
-.auth-bike {
-  display: block;
-  width: 78%;
-  max-width: 340px; /* ubah angka ini untuk memperbesar / memperkecil motor */
-  height: auto;
-  max-height: 40vh; /* mengecil otomatis di layar pendek */
-  min-height: 0;
-  object-fit: contain;
-  margin: 16px auto; /* auto kiri-kanan = tepat di tengah panel kuning */
-  transform: translateX(-8%); /* koreksi ruang kosong di sisi kanan foto */
-}
-
-@media (max-width: 760px) {
-  .auth {
-    height: auto;
-    min-height: 0;
-  } /* di HP boleh memanjang ke bawah */
-  .auth-side {
-    padding: 36px 24px;
-  }
-  .auth-bike {
-    max-height: none;
-    width: 70%;
-  }
-}
-
-/* =========================================================
-   LANDING PAGE: background kuning penuh
-   (:has() hanya aktif di halaman yang punya .lp tanpa .shell,
-   jadi halaman internal, login, dan register tidak terpengaruh)
-   ========================================================= */
-body:has(.lp:not(.shell)) {
-  background: var(--gold);
-}
-
-.lp:not(.shell) {
-  border-radius: 0;
-}
-.lp:not(.shell) ~ .lp-info {
-  padding-inline: 32px;
-}
-.lp-info .card {
-  box-shadow: 0 10px 28px rgba(92, 63, 111, 0.18);
-}
-.lp-info:last-of-type {
-  padding-bottom: 24px;
-}
-
-/* =========================================================
-   HALAMAN SETELAH LOGIN: background kuning penuh
-   (hanya berlaku di halaman dengan kerangka .shell,
-   jadi landing page, login, dan register tidak terpengaruh)
-   ========================================================= */
-body:has(.shell) {
-  background: var(--gold);
-}
-
-.shell {
-  border-radius: 0;
-  margin-bottom: 0;
-  padding-bottom: 64px;
-}
-.shell .card {
-  box-shadow: 0 10px 28px rgba(92, 63, 111, 0.18);
-}
-.shell .item {
-  background: var(--cream);
-}
-.shell tr:hover > td {
-  background: var(--cream);
-}
-.shell .thumb,
-.shell .thumb-sm {
-  background: var(--cream);
-}
-
-/* =========================================================
-   STRUK ESTIMASI (build plan)
+   STRUK ESTIMASI
    ========================================================= */
 .receipt {
   position: relative;
@@ -1047,8 +1112,8 @@ body:has(.shell) {
     monospace;
   box-shadow: 0 14px 34px rgba(92, 63, 111, 0.25);
 }
-/* tepi bawah bergerigi seperti kertas struk */
 .receipt::after {
+  /* tepi bawah bergerigi */
   content: "";
   position: absolute;
   left: 0;
@@ -1058,7 +1123,6 @@ body:has(.shell) {
   background: radial-gradient(circle at 7px 0, #fffdf8 7px, transparent 7.5px) 0
     0 / 14px 8px repeat-x;
 }
-
 .rc-head {
   text-align: center;
   padding-bottom: 14px;
@@ -1142,7 +1206,6 @@ body:has(.shell) {
 .rc-grand span:last-child {
   color: var(--purple);
 }
-
 .rc-foot {
   margin: 20px 0 0;
   text-align: center;
@@ -1150,87 +1213,170 @@ body:has(.shell) {
   font-size: 0.78rem;
 }
 
-@media (max-width: 480px) {
-  .receipt {
-    margin-inline: 8px;
-    padding: 24px 18px 30px;
+/* =========================================================
+   DIALOG KONFIRMASI (menggantikan popup bawaan browser)
+   ========================================================= */
+dialog.confirm {
+  width: calc(100% - 32px);
+  max-width: 420px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  overflow: visible;
+}
+dialog.confirm::backdrop {
+  background: rgba(42, 29, 51, 0.55);
+  backdrop-filter: blur(4px);
+}
+dialog.confirm[open] {
+  animation: confirm-in 0.18s ease-out;
+}
+.confirm-box {
+  background: var(--cream);
+  border-radius: var(--radius);
+  padding: 32px 28px 26px;
+  text-align: center;
+  box-shadow: 0 24px 60px rgba(42, 29, 51, 0.35);
+}
+.confirm-icon {
+  display: grid;
+  place-items: center;
+  width: 56px;
+  height: 56px;
+  margin: 0 auto 16px;
+  border-radius: 50%;
+  background: var(--gold);
+  color: var(--purple);
+  font: 800 1.6rem var(--serif);
+}
+.confirm-title {
+  font-size: 1.6rem;
+  margin: 0 0 8px;
+}
+.confirm-text {
+  margin: 0 0 24px;
+}
+.confirm-actions {
+  display: flex;
+  gap: 10px;
+}
+.confirm-actions .btn {
+  flex: 1;
+}
+@keyframes confirm-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: none;
   }
 }
 
 /* =========================================================
-   BUILD PLAN: tabel di kiri, struk di kanan (layar lebar)
+   RESPONSIF
    ========================================================= */
-.part-cell {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  min-width: 170px;
-}
-.build-layout {
-  display: grid;
-  gap: 24px;
-  padding-bottom: 8px;
-}
-
-@media (min-width: 1100px) {
-  body:has(.build-layout) .shell {
-    max-width: 1480px;
+@media (max-width: 760px) {
+  .auth {
+    grid-template-columns: 1fr;
+    height: auto;
+    min-height: 0;
+  } /* di HP boleh memanjang ke bawah */
+  .auth-side {
+    padding: 36px 24px;
   }
-  body:has(.build-layout) .lp {
-    padding-inline: 24px;
+  .auth-bike {
+    max-height: none;
+    width: 70%;
+  }
+  .hero {
+    padding: 24px;
   }
 
-  .build-layout {
-    grid-template-columns: minmax(0, 1fr) 330px;
-    gap: 20px;
-    align-items: start;
+  .shell .lp-nav nav {
+    flex-wrap: wrap;
+    gap: 16px;
+    order: 3;
+    flex-basis: 100%;
   }
-  .build-layout .receipt {
-    position: sticky;
-    top: 24px; /* struk ikut menempel saat di-scroll */
-    width: 100%;
-    max-width: none;
-    margin: 0;
+  .lp .panel {
+    padding: 24px;
   }
-
-  /* tabel dirapatkan agar muat tanpa geser samping */
-  .build-main .card {
-    padding: 20px 16px;
-  }
-  .build-main .table-scroll table {
-    min-width: 0;
-  }
-  .build-main th,
-  .build-main td {
-    padding: 10px 8px;
-  }
-  .build-main .part-cell {
-    min-width: 0;
-    gap: 10px;
-  }
-  .build-main .thumb-sm {
-    width: 48px;
-    height: 48px;
-  }
-  .build-main td input,
-  .build-main td select {
-    min-width: 0;
-    width: 100%;
+  .receipt {
+    margin-inline: 8px;
+    padding: 24px 18px 30px;
   }
 
-  /* tombol aksi ditumpuk agar kolomnya sempit */
-  .build-main td.num form {
-    display: inline-flex;
+  .site-nav nav {
+    gap: 14px;
+  }
+  .site-nav nav a {
+    font-size: 0.9rem;
+  }
+  .site-nav .lp-login {
+    padding: 6px 16px;
+    font-size: 0.9rem;
+  }
+
+  .lp-top {
     flex-direction: column;
-    gap: 6px;
   }
-  .build-main td.num form .btn {
-    width: 100%;
-    text-align: center;
+  .lp-colors {
+    text-align: left;
+  }
+  .swatches {
+    justify-content: flex-start;
+  }
+  .lp-stage {
+    margin-top: 24px;
+  }
+  .lp-panel {
+    grid-template-columns: 1fr;
+    padding-top: 220px;
+  }
+  .lp-brand {
+    justify-self: start;
+  }
+  .scooter {
+    width: 88%;
+    top: -10px;
+    bottom: auto;
+    transform: translateX(-50%);
+  }
+
+  .fleet-item {
+    max-width: 90%;
+  }
+  .foot-grid {
+    grid-template-columns: 1fr;
   }
 }
-
-select:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
+@media (max-width: 560px) {
+  .site-nav .lp-logo {
+    display: none;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+    scroll-snap-type: none;
+  }
+  @view-transition {
+    navigation: none;
+  }
+  *:not(.fleet-item) {
+    transition: none !important;
+  }
+  .no-vt body {
+    animation: none;
+  }
+  .grid > .card:hover,
+  .tip:hover,
+  .proj:hover {
+    transform: none;
+  }
+  dialog.confirm[open] {
+    animation: none;
+  }
 }

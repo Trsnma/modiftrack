@@ -6,14 +6,12 @@ const MAX_TRY = 5; const LOCK_SEC = 60;
 $err = '';
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     csrf_check();
-    // Pembatasan percobaan login (dasar anti brute-force)
     if (($_SESSION['tries'] ?? 0) >= MAX_TRY && time() - ($_SESSION['try_at'] ?? 0) < LOCK_SEC) {
         $err = 'Terlalu banyak percobaan. Coba lagi dalam 1 menit.';
     } else {
         $u = trim($_POST['username'] ?? '');
         $p = $_POST['password'] ?? '';
         $user = row('SELECT id,username,password,role FROM users WHERE username=?', 's', [$u]);
-        // Hash palsu agar waktu respons sama walau username tidak ada
         $hash = $user['password'] ?? '$2y$10$abcdefghijklmnopqrstuuABCDEFGHIJKLMNOPQRSTUVWXYZ01234';
         if (password_verify($p, $hash) && $user) {
             session_regenerate_id(true);                 // cegah session fixation

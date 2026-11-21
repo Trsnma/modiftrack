@@ -1,5 +1,12 @@
 /* ModifTrack - app.js */
 
+/* ---------- 0. Cadangan transisi halaman untuk browser lama ----------
+   Browser yang mendukung view transition punya event "pagereveal".
+   Selain itu, halaman diberi kelas .no-vt agar tampil dengan fade-in (lihat style.css). */
+if (!("onpagereveal" in window)) {
+  document.documentElement.classList.add("no-vt");
+}
+
 /* ---------- 1. Dialog konfirmasi kustom ----------
    Dipakai oleh elemen yang punya atribut: data-confirm="Pesan konfirmasi" */
 (function () {
@@ -61,8 +68,8 @@
 /* ---------- 2. Landing page: pilih warna kendaraan ---------- */
 document.querySelectorAll(".swatch").forEach(function (btn) {
   btn.addEventListener("click", function () {
-    var lp = document.querySelector(".lp");
-    if (lp) lp.style.setProperty("--bike", btn.dataset.color);
+    var hero = document.querySelector(".land-hero");
+    if (hero) hero.style.setProperty("--bike", btn.dataset.color);
     document.querySelectorAll(".swatch").forEach(function (b) {
       b.setAttribute("aria-pressed", b === btn ? "true" : "false");
     });
@@ -94,3 +101,41 @@ document.querySelectorAll("select[data-models]").forEach(function (merk) {
   merk.addEventListener("change", isiModel);
   isiModel();
 });
+
+/* ---------- 4. Landing page: bayangan navbar saat halaman di-scroll ---------- */
+(function () {
+  var nav = document.querySelector(".site-nav");
+  if (!nav) return;
+  function update() {
+    nav.classList.toggle("is-scrolled", window.scrollY > 8);
+  }
+  update();
+  window.addEventListener("scroll", update, { passive: true });
+})();
+
+/* ---------- 5. About: galeri motor bergantian (maju, lalu mundur ke belakang) ----------
+   Posisi awal (data-rel) sudah ditulis PHP, jadi motor pertama tampil walau JS belum jalan.
+   Di sini hanya menggeser posisi tiap beberapa detik.
+   Galeri sengaja tetap bergerak walau perangkat meminta "kurangi gerakan",
+   karena gerakannya adalah inti tampilan bagian ini. */
+(function () {
+  var items = document.querySelectorAll(".fleet-item");
+  var label = document.querySelector(".fleet-name");
+  if (items.length < 2) return; // satu motor saja: tidak perlu bergerak
+
+  var total = items.length;
+  var now = 0;
+
+  // data-rel: 0 = di depan, 1 = berikutnya (menunggu di belakang), lainnya = tersembunyi
+  function show() {
+    items.forEach(function (el, i) {
+      el.dataset.rel = Math.min((i - now + total) % total, 2);
+    });
+    if (label) label.textContent = items[now].alt;
+  }
+
+  setInterval(function () {
+    now = (now + 1) % total;
+    show();
+  }, 3200);
+})();
