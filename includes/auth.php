@@ -12,7 +12,7 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
-const SESSION_TIMEOUT = 1800; // 30 menit tidak aktif
+const SESSION_TIMEOUT = 1800;
 
 /** Escape output (anti-XSS). */
 function e($s): string { return htmlspecialchars((string)$s, ENT_QUOTES, 'UTF-8'); }

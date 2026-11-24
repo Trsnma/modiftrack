@@ -6,14 +6,12 @@ const MAX_TRY = 5; const LOCK_SEC = 60;
 $err = '';
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     csrf_check();
-    // Pembatasan percobaan login (dasar anti brute-force)
     if (($_SESSION['tries'] ?? 0) >= MAX_TRY && time() - ($_SESSION['try_at'] ?? 0) < LOCK_SEC) {
         $err = 'Terlalu banyak percobaan. Coba lagi dalam 1 menit.';
     } else {
         $u = trim($_POST['username'] ?? '');
         $p = $_POST['password'] ?? '';
         $user = row('SELECT id,username,password,role FROM users WHERE username=?', 's', [$u]);
-        // Hash palsu agar waktu respons sama walau username tidak ada
         $hash = $user['password'] ?? '$2y$10$abcdefghijklmnopqrstuuABCDEFGHIJKLMNOPQRSTUVWXYZ01234';
         if (password_verify($p, $hash) && $user) {
             session_regenerate_id(true);                 // cegah session fixation
@@ -28,12 +26,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $err = 'Username atau password salah.';
     }
 }
+
 $base = '../'; $public = true; $title = 'Masuk';
+$hasImage = file_exists(__DIR__ . '/../assets/img/hero.png');
 include '../includes/header.php';
 ?>
 <div class="auth">
   <section class="auth-side">
+    <p class="auth-brand">ModifTrack</p>
     <h1>Stay calm &amp; build classy.</h1>
+    <?php if ($hasImage): ?>
+      <img class="auth-bike" src="../assets/img/hero.png" alt="Motor modifikasi">
+    <?php endif; ?>
     <p>Rencanakan modifikasi tanpa kejutan biaya.</p>
     <div class="dots" aria-hidden="true"><i></i><i></i><i></i></div>
   </section>

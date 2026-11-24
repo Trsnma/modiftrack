@@ -26,11 +26,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 $base = '../'; $public = true; $title = 'Daftar';
+$hasImage = file_exists(__DIR__ . '/../assets/img/hero.png');
 include '../includes/header.php';
 ?>
 <div class="auth">
   <section class="auth-side">
+    <p class="auth-brand">ModifTrack</p>
     <h1>Mulai garasimu.</h1>
+    <?php if ($hasImage): ?>
+      <img class="auth-bike" src="../assets/img/hero.png" alt="Motor modifikasi">
+    <?php endif; ?>
     <p>Daftar gratis untuk menyimpan kendaraan dan rencana modifikasi.</p>
     <div class="dots" aria-hidden="true"><i></i><i></i><i></i></div>
   </section>
