@@ -8,17 +8,41 @@ $statuses = ['Rencana', 'Sudah Dibeli', 'Terpasang'];
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     csrf_check();
-    $id = (int)($_POST['id'] ?? 0);
-    if (($_POST['aksi'] ?? '') === 'update') {
-        $st = in_array($_POST['status'] ?? '', $statuses, true) ? $_POST['status'] : 'Rencana';
-        $note = mb_substr(trim($_POST['catatan'] ?? ''), 0, 500);
-        q('UPDATE build_plans SET status_beli=?, catatan=? WHERE id=? AND user_id=?', 'ssii', [$st, $note, $id, $uid]);
-        flash('ok', 'Build diperbarui.');
-    } elseif (($_POST['aksi'] ?? '') === 'hapus') {
-        q('DELETE FROM build_plans WHERE id=? AND user_id=?', 'ii', [$id, $uid]);
+    $aksi = $_POST['aksi'] ?? '';
+    $back = 'build_plan.php';
+
+    if ($aksi === 'simpan_kendaraan') {
+        // Simpan status & catatan semua part pada satu motor sekaligus
+        $vid     = (int)($_POST['vehicle_id'] ?? 0);
+        $status  = is_array($_POST['status'] ?? null) ? $_POST['status'] : [];
+        $catatan = is_array($_POST['catatan'] ?? null) ? $_POST['catatan'] : [];
+        $back   .= '#kendaraan-' . $vid;
+
+        // Hanya part milik user pada motor ini yang boleh diubah
+        $milik = rows('SELECT id FROM build_plans WHERE user_id=? AND vehicle_id=?', 'ii', [$uid, $vid]);
+        try {
+            mysqli_begin_transaction($conn);
+            foreach ($milik as $m) {
+                $id = (int)$m['id'];
+                if (!isset($status[$id])) continue;
+                $st   = in_array($status[$id], $statuses, true) ? $status[$id] : 'Rencana';
+                $raw  = $catatan[$id] ?? '';
+                $note = is_string($raw) ? mb_substr(trim($raw), 0, 500) : '';
+                q('UPDATE build_plans SET status_beli=?, catatan=? WHERE id=? AND user_id=?', 'ssii', [$st, $note, $id, $uid]);
+            }
+            mysqli_commit($conn);
+            flash('ok', 'Perubahan disimpan.');
+        } catch (Throwable $ex) {
+            mysqli_rollback($conn);
+            error_log('Simpan build gagal: ' . $ex->getMessage());
+            flash('err', 'Gagal menyimpan perubahan. Tidak ada yang diubah.');
+        }
+
+    } elseif ($aksi === 'hapus') {
+        q('DELETE FROM build_plans WHERE id=? AND user_id=?', 'ii', [(int)($_POST['id'] ?? 0), $uid]);
         flash('ok', 'Part dihapus dari build.');
     }
-    redirect('build_plan.php');
+    redirect($back);
 }
 
 $items = rows(
@@ -30,83 +54,43 @@ $items = rows(
    WHERE b.user_id=? ORDER BY v.id DESC, b.id', 'i', [$uid]);
 
 // Kelompokkan per kendaraan + hitung total
-<<<<<<< HEAD
-$groups = []; $grand = 0;
-=======
 $groups = []; $grandPart = 0; $grandJasa = 0;
->>>>>>> 397324069be6e4cfbb5db59296b77ea9a152e5a7
 foreach ($items as $it) {
     $groups[$it['vid']]['info'] = $it['merk'] . ' ' . $it['model'] . ' (' . $it['tahun_rilis'] . ')';
     $groups[$it['vid']]['rows'][] = $it;
     $groups[$it['vid']]['part'] = ($groups[$it['vid']]['part'] ?? 0) + $it['harga_part'];
     $groups[$it['vid']]['jasa'] = ($groups[$it['vid']]['jasa'] ?? 0) + $it['estimasi_jasa'];
-<<<<<<< HEAD
-    $grand += $it['harga_part'] + $it['estimasi_jasa'];
-}
-=======
     $grandPart += $it['harga_part'];
     $grandJasa += $it['estimasi_jasa'];
 }
 $grand = $grandPart + $grandJasa;
 $noStruk = 'MT-' . date('ymd') . '-' . str_pad((string)$uid, 3, '0', STR_PAD_LEFT);
 
->>>>>>> 397324069be6e4cfbb5db59296b77ea9a152e5a7
 $title = 'Build Plan'; $active = 'build';
 include '../includes/header.php';
 ?>
 <h1>Build plan</h1>
 <?php if (!$groups): ?>
   <div class="card">Belum ada part. Pilih dari <a href="katalog.php">katalog</a>.</div>
-<<<<<<< HEAD
-<?php endif; ?>
-<?php foreach ($groups as $g): ?>
-<section class="card">
-  <h2><?= e($g['info']) ?></h2>
-  <div class="table-scroll">
-  <table>
-    <tr><th>Part</th><th class="num">Harga part</th><th class="num">Jasa</th><th>Status</th><th>Catatan</th><th></th></tr>
-    <?php foreach ($g['rows'] as $r): $fid = 'f' . (int)$r['id']; ?>
-    <tr>
-      <td><?= e($r['nama_part']) ?><br><span class="tag"><?= e($r['kategori']) ?></span></td>
-      <td class="num"><?= rupiah($r['harga_part']) ?></td>
-      <td class="num"><?= rupiah($r['estimasi_jasa']) ?></td>
-      <td>
-        <select name="status" form="<?= $fid ?>" aria-label="Status pembelian">
-          <?php foreach ($statuses as $s): ?><option <?= $r['status_beli'] === $s ? 'selected' : '' ?>><?= e($s) ?></option><?php endforeach; ?>
-        </select>
-      </td>
-      <td><input name="catatan" form="<?= $fid ?>" value="<?= e($r['catatan']) ?>" maxlength="500" aria-label="Catatan"></td>
-      <td class="num">
-        <form id="<?= $fid ?>" method="post" class="inline">
-          <?= csrf_field() ?><input type="hidden" name="id" value="<?= (int)$r['id'] ?>">
-          <button class="btn btn-sm" name="aksi" value="update">Simpan</button>
-          <button class="btn btn-danger btn-sm" name="aksi" value="hapus" data-confirm="Hapus part ini dari build?">Hapus</button>
-        </form>
-      </td>
-    </tr>
-    <?php endforeach; ?>
-  </table>
-  </div>
-  <div class="total">
-    <span>Part <?= rupiah($g['part']) ?> + Jasa <?= rupiah($g['jasa']) ?></span>
-    <span>Subtotal <?= rupiah($g['part'] + $g['jasa']) ?></span>
-  </div>
-</section>
-<?php endforeach; ?>
-<?php if ($groups): ?><div class="panel stats"><div class="stat"><b><?= rupiah($grand) ?></b>Total semua build</div></div><?php endif; ?>
-<?php include '../includes/footer.php'; ?>
-=======
 <?php else: ?>
 <div class="build-layout">
 
   <div class="build-main">
-    <?php foreach ($groups as $g): ?>
-    <section class="card">
+    <?php foreach ($groups as $vid => $g): $vid = (int)$vid; $fid = 'simpan-' . $vid; ?>
+    <section class="card" id="kendaraan-<?= $vid ?>">
       <h2><?= e($g['info']) ?></h2>
+
+      <!-- Form simpan per motor: kolom status & catatan di tabel terhubung lewat atribut form="" -->
+      <form id="<?= $fid ?>" method="post">
+        <?= csrf_field() ?>
+        <input type="hidden" name="aksi" value="simpan_kendaraan">
+        <input type="hidden" name="vehicle_id" value="<?= $vid ?>">
+      </form>
+
       <div class="table-scroll">
       <table>
         <tr><th>Part</th><th class="num">Harga part</th><th class="num">Jasa</th><th>Status</th><th>Catatan</th><th></th></tr>
-        <?php foreach ($g['rows'] as $r): $fid = 'f' . (int)$r['id']; $img = foto_url($r['foto']); ?>
+        <?php foreach ($g['rows'] as $r): $rid = (int)$r['id']; $img = foto_url($r['foto']); ?>
         <tr>
           <td>
             <div class="part-cell">
@@ -118,25 +102,36 @@ include '../includes/header.php';
           <td class="num"><?= rupiah($r['harga_part']) ?></td>
           <td class="num"><?= rupiah($r['estimasi_jasa']) ?></td>
           <td>
-            <select name="status" form="<?= $fid ?>" aria-label="Status pembelian">
+            <select name="status[<?= $rid ?>]" form="<?= $fid ?>" aria-label="Status pembelian">
               <?php foreach ($statuses as $s): ?><option <?= $r['status_beli'] === $s ? 'selected' : '' ?>><?= e($s) ?></option><?php endforeach; ?>
             </select>
           </td>
-          <td><input name="catatan" form="<?= $fid ?>" value="<?= e($r['catatan']) ?>" maxlength="500" aria-label="Catatan"></td>
+          <td><input name="catatan[<?= $rid ?>]" form="<?= $fid ?>" value="<?= e($r['catatan']) ?>" maxlength="500" aria-label="Catatan"></td>
           <td class="num">
-            <form id="<?= $fid ?>" method="post" class="inline">
-              <?= csrf_field() ?><input type="hidden" name="id" value="<?= (int)$r['id'] ?>">
-              <button class="btn btn-sm" name="aksi" value="update">Simpan</button>
-              <button class="btn btn-danger btn-sm" name="aksi" value="hapus" data-confirm="Hapus part ini dari build?">Hapus</button>
+            <form method="post" class="inline">
+              <?= csrf_field() ?><input type="hidden" name="id" value="<?= $rid ?>">
+              <button class="btn btn-danger btn-sm" name="aksi" value="hapus"
+                      data-confirm="Apakah Anda yakin ingin menghapus <?= e($r['nama_part']) ?> dari build plan?"
+                      data-confirm-title="Hapus part?">Hapus</button>
             </form>
           </td>
         </tr>
         <?php endforeach; ?>
       </table>
       </div>
+
       <div class="total">
         <span>Part <?= rupiah($g['part']) ?> + Jasa <?= rupiah($g['jasa']) ?></span>
         <span>Subtotal <?= rupiah($g['part'] + $g['jasa']) ?></span>
+      </div>
+
+      <div class="build-save">
+        <p class="muted">Ubah status atau catatan beberapa part, lalu simpan sekali untuk motor ini.</p>
+        <button class="btn" type="submit" form="<?= $fid ?>"
+                data-confirm="Apakah Anda yakin ingin menyimpan semua perubahan pada <?= e($g['info']) ?>?"
+                data-confirm-title="Simpan perubahan?"
+                data-confirm-ok="Ya, simpan"
+                data-confirm-tone="primary">Simpan perubahan</button>
       </div>
     </section>
     <?php endforeach; ?>
@@ -178,4 +173,3 @@ include '../includes/header.php';
 </div>
 <?php endif; ?>
 <?php include '../includes/footer.php'; ?>
->>>>>>> 397324069be6e4cfbb5db59296b77ea9a152e5a7

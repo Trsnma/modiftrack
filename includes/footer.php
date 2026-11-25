@@ -30,6 +30,7 @@
   <p class="foot-copy">Copyright &copy; <?= date('Y') ?> ModifTrack. All rights reserved.</p>
 </footer>
 <?php endif; ?>
-<script src="<?= $base ?? '../' ?>assets/js/app.js"></script>
+<?php $jsVer = @filemtime(__DIR__ . '/../assets/js/app.js') ?: time(); // cegah JS lama tertahan di cache ?>
+<script src="<?= $base ?? '../' ?>assets/js/app.js?v=<?= $jsVer ?>"></script>
 </body>
 </html>

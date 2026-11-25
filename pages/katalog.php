@@ -1,9 +1,6 @@
 <?php
 require_once '../includes/auth.php';
-<<<<<<< HEAD
-=======
 require_once '../includes/upload.php';
->>>>>>> 397324069be6e4cfbb5db59296b77ea9a152e5a7
 require_login();
 $uid = $_SESSION['user_id'];
 $kats = ['Eksterior', 'Interior', 'Kaki-kaki', 'Performa'];
@@ -71,10 +68,6 @@ include '../includes/header.php';
   <div class="card">Belum ada part yang cocok<?= $sel ? ' untuk ' . e($sel['merk'] . ' ' . $sel['model']) : '' ?>.</div>
 <?php else: ?>
 <div class="grid">
-<<<<<<< HEAD
-  <?php foreach ($parts as $p): ?>
-  <article class="card">
-=======
   <?php foreach ($parts as $p): $img = foto_url($p['foto']); ?>
   <article class="card">
     <?php if ($img): ?>
@@ -82,7 +75,6 @@ include '../includes/header.php';
     <?php else: ?>
       <div class="thumb thumb-empty">Tanpa foto</div>
     <?php endif; ?>
->>>>>>> 397324069be6e4cfbb5db59296b77ea9a152e5a7
     <span class="tag"><?= e($p['kategori']) ?></span>
     <h3><?= e($p['nama_part']) ?></h3>
     <p class="muted"><?= e($p['kompatibel_merk'] . ' ' . $p['kompatibel_model']) ?> · <?= (int)$p['tahun_min'] ?>-<?= (int)$p['tahun_max'] ?></p>
@@ -92,15 +84,15 @@ include '../includes/header.php';
       <?= csrf_field() ?>
       <input type="hidden" name="vehicle_id" value="<?= (int)$sel['id'] ?>">
       <input type="hidden" name="part_id" value="<?= (int)$p['id'] ?>">
-      <button class="btn btn-gold btn-sm" type="submit">Tambah ke Build</button>
+      <button class="btn btn-gold btn-sm" type="submit"
+              data-confirm="Apakah Anda yakin ingin menambahkan <?= e($p['nama_part']) ?> ke build plan <?= e($sel['merk'] . ' ' . $sel['model']) ?>?"
+              data-confirm-title="Tambah ke build?"
+              data-confirm-ok="Ya, tambahkan"
+              data-confirm-tone="primary">Tambah ke Build</button>
     </form>
     <?php endif; ?>
   </article>
   <?php endforeach; ?>
 </div>
 <?php endif; ?>
-<<<<<<< HEAD
 <?php include '../includes/footer.php'; ?>
-=======
-<?php include '../includes/footer.php'; ?>
->>>>>>> 397324069be6e4cfbb5db59296b77ea9a152e5a7
