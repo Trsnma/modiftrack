@@ -13,6 +13,7 @@
   --ink: #2a1d33;
   --muted: #7b6a86;
   --line: #e6d9ea;
+  --outline: rgba(92, 63, 111, 0.28); /* garis tepi tipis untuk kartu part */
   --tint: #faf4fb;
   --radius: 28px;
   --shadow: 0 8px 24px rgba(92, 63, 111, 0.1);
@@ -617,11 +618,23 @@ body:has(.land) {
   background: var(--cream);
 }
 
+/* Footer selalu menempel di dasar layar walau isi halaman pendek */
+body:has(.shell) {
+  min-height: 100vh;
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+}
 .shell {
+  flex: 1 0 auto;
   width: 100%;
   max-width: none;
   margin: 0;
-  padding-bottom: 64px;
+  padding-bottom: 40px;
+}
+.app-foot {
+  flex-shrink: 0;
+  margin-top: 0;
 }
 .content {
   margin-top: 32px;
@@ -633,6 +646,187 @@ body:has(.land) {
 }
 .content > h2 {
   margin-top: 28px;
+}
+
+/* =========================================================
+   DASHBOARD (Home setelah login)
+   ========================================================= */
+.dash-hero {
+  display: grid;
+  grid-template-columns: 1.1fr 0.9fr;
+  gap: 32px;
+  align-items: center;
+  margin: 32px 0 32px;
+}
+.dash-hello h1 {
+  margin-bottom: 8px;
+}
+.dash-hello p {
+  max-width: 46ch;
+  margin: 0 0 22px;
+}
+.dash-cta {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+/* Panel ungu berisi galeri motor (memakai .fleet dari bagian About) */
+.dash-visual {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  min-height: 330px;
+  padding: 0 24px 22px;
+  background: var(--purple);
+  border-radius: 36px;
+}
+.dash-visual .fleet {
+  width: 100%;
+  height: 320px;
+  margin: 0 0 6px;
+} /* motor menonjol keluar dari atas panel */
+.dash-visual .fleet-name {
+  margin: 0;
+  font-size: 1.15rem;
+  color: var(--gold);
+}
+.dash-single {
+  /* cadangan jika galeri kosong */
+  width: 80%;
+  max-width: 420px;
+  height: auto;
+  margin: 0 auto 6px;
+  filter: drop-shadow(0 18px 18px rgba(42, 29, 51, 0.4));
+}
+.dash-quote {
+  margin: auto;
+  font: italic 800 clamp(1.6rem, 3vw, 2.4rem)/1.2 var(--serif);
+  color: var(--gold);
+  text-align: center;
+}
+
+.dash-stats {
+  display: grid;
+  gap: 16px;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  margin-bottom: 24px;
+}
+.dash-stat {
+  background: var(--purple);
+  color: var(--cream);
+  border-radius: 24px;
+  padding: 22px 24px;
+}
+.dash-stat b {
+  display: block;
+  font: 800 2rem/1.1 var(--serif);
+  font-style: italic;
+  color: var(--gold);
+  margin-bottom: 4px;
+}
+.dash-stat span {
+  font-size: 0.9rem;
+}
+
+.dash-progress {
+  margin-bottom: 32px;
+}
+.dash-progress-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 12px;
+}
+.dash-progress-head h3 {
+  margin: 0;
+}
+progress {
+  display: block;
+  width: 100%;
+  height: 14px;
+  appearance: none;
+  border: 0;
+  border-radius: 999px;
+  overflow: hidden;
+  background: var(--cream);
+}
+progress::-webkit-progress-bar {
+  background: var(--cream);
+  border-radius: 999px;
+}
+progress::-webkit-progress-value {
+  background: var(--purple);
+  border-radius: 999px;
+}
+progress::-moz-progress-bar {
+  background: var(--purple);
+  border-radius: 999px;
+}
+.dash-legend {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 14px;
+}
+
+.dash-cols {
+  display: grid;
+  grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
+  gap: 24px;
+  align-items: start;
+  margin-bottom: 32px;
+}
+.dash-cols h2,
+.dash-ideas h2 {
+  margin-bottom: 14px;
+}
+.dash-cols .grid {
+  grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+}
+.dash-cols > section > .card {
+  margin-bottom: 0;
+}
+
+/* Setiap part diberi garis tepi tipis */
+.recent {
+  display: grid;
+  gap: 12px;
+  margin: 0 0 16px;
+  padding: 0;
+  list-style: none;
+}
+.recent li {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px;
+  border: 1px solid var(--outline);
+  border-radius: 18px;
+}
+.recent-info {
+  flex: 1;
+  min-width: 0;
+  display: grid;
+}
+.recent-name {
+  font-weight: 700;
+  color: var(--ink);
+  overflow-wrap: anywhere;
+}
+.recent-price {
+  font-weight: 700;
+  white-space: nowrap;
+  color: var(--purple);
+}
+
+.dash-ideas {
+  margin-bottom: 8px;
+}
+.dash-ideas .card {
+  border: 1px solid var(--outline);
 }
 
 /* =========================================================
@@ -843,7 +1037,7 @@ body:has(.land) .wrap {
   font-weight: 500;
 }
 
-/* About: galeri motor 3D (motor maju, lalu mundur ke belakang) */
+/* Galeri motor 3D (About & Dashboard): motor maju, lalu mundur ke belakang */
 .fleet {
   position: relative;
   height: clamp(200px, 40vh, 420px);
@@ -988,7 +1182,7 @@ body:has(.land) .wrap {
   color: var(--gold);
 }
 
-/* Footer */
+/* Footer (landing & halaman setelah login) */
 .land-foot {
   padding: 56px var(--gutter) 28px;
   background: var(--purple);
@@ -1030,7 +1224,7 @@ body:has(.land) .wrap {
   text-underline-offset: 4px;
 }
 .foot-copy {
-  margin-top: 36px;
+  margin-top: 40px;
   padding-top: 20px;
   border-top: 1px solid rgba(253, 246, 238, 0.2);
   font-size: 0.85rem;
@@ -1277,6 +1471,17 @@ dialog.confirm[open] {
 /* =========================================================
    RESPONSIF
    ========================================================= */
+@media (max-width: 900px) {
+  .dash-hero {
+    grid-template-columns: 1fr;
+  }
+  .dash-visual {
+    margin-top: 56px;
+  } /* ruang untuk motor yang menonjol keluar panel */
+  .dash-cols {
+    grid-template-columns: 1fr;
+  }
+}
 @media (max-width: 760px) {
   .auth {
     grid-template-columns: 1fr;
@@ -1367,7 +1572,7 @@ dialog.confirm[open] {
   }
   *:not(.fleet-item) {
     transition: none !important;
-  }
+  } /* galeri motor tetap bergerak */
   .no-vt body {
     animation: none;
   }

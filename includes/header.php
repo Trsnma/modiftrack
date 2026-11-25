@@ -7,6 +7,7 @@ $public = $public ?? false;
 $shell  = !$public && !empty($_SESSION['user_id']);   // halaman internal memakai kerangka kuning
 $flash  = $_SESSION['flash'] ?? null;
 unset($_SESSION['flash']);
+$cssVer = @filemtime(__DIR__ . '/../assets/css/style.css') ?: time();   // cegah CSS lama tertahan di cache
 ?><!DOCTYPE html>
 <html lang="id">
 <head>
@@ -15,7 +16,7 @@ unset($_SESSION['flash']);
 <title><?= e($title) ?> | ModifTrack</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Playfair+Display:ital,wght@1,700;1,800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="<?= $base ?>assets/css/style.css">
+<link rel="stylesheet" href="<?= $base ?>assets/css/style.css?v=<?= $cssVer ?>">
 </head>
 <body>
 <?php if ($shell):
