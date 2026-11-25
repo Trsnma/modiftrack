@@ -30,24 +30,72 @@ $items = rows(
    WHERE b.user_id=? ORDER BY v.id DESC, b.id', 'i', [$uid]);
 
 // Kelompokkan per kendaraan + hitung total
+<<<<<<< HEAD
+$groups = []; $grand = 0;
+=======
 $groups = []; $grandPart = 0; $grandJasa = 0;
+>>>>>>> 397324069be6e4cfbb5db59296b77ea9a152e5a7
 foreach ($items as $it) {
     $groups[$it['vid']]['info'] = $it['merk'] . ' ' . $it['model'] . ' (' . $it['tahun_rilis'] . ')';
     $groups[$it['vid']]['rows'][] = $it;
     $groups[$it['vid']]['part'] = ($groups[$it['vid']]['part'] ?? 0) + $it['harga_part'];
     $groups[$it['vid']]['jasa'] = ($groups[$it['vid']]['jasa'] ?? 0) + $it['estimasi_jasa'];
+<<<<<<< HEAD
+    $grand += $it['harga_part'] + $it['estimasi_jasa'];
+}
+=======
     $grandPart += $it['harga_part'];
     $grandJasa += $it['estimasi_jasa'];
 }
 $grand = $grandPart + $grandJasa;
 $noStruk = 'MT-' . date('ymd') . '-' . str_pad((string)$uid, 3, '0', STR_PAD_LEFT);
 
+>>>>>>> 397324069be6e4cfbb5db59296b77ea9a152e5a7
 $title = 'Build Plan'; $active = 'build';
 include '../includes/header.php';
 ?>
 <h1>Build plan</h1>
 <?php if (!$groups): ?>
   <div class="card">Belum ada part. Pilih dari <a href="katalog.php">katalog</a>.</div>
+<<<<<<< HEAD
+<?php endif; ?>
+<?php foreach ($groups as $g): ?>
+<section class="card">
+  <h2><?= e($g['info']) ?></h2>
+  <div class="table-scroll">
+  <table>
+    <tr><th>Part</th><th class="num">Harga part</th><th class="num">Jasa</th><th>Status</th><th>Catatan</th><th></th></tr>
+    <?php foreach ($g['rows'] as $r): $fid = 'f' . (int)$r['id']; ?>
+    <tr>
+      <td><?= e($r['nama_part']) ?><br><span class="tag"><?= e($r['kategori']) ?></span></td>
+      <td class="num"><?= rupiah($r['harga_part']) ?></td>
+      <td class="num"><?= rupiah($r['estimasi_jasa']) ?></td>
+      <td>
+        <select name="status" form="<?= $fid ?>" aria-label="Status pembelian">
+          <?php foreach ($statuses as $s): ?><option <?= $r['status_beli'] === $s ? 'selected' : '' ?>><?= e($s) ?></option><?php endforeach; ?>
+        </select>
+      </td>
+      <td><input name="catatan" form="<?= $fid ?>" value="<?= e($r['catatan']) ?>" maxlength="500" aria-label="Catatan"></td>
+      <td class="num">
+        <form id="<?= $fid ?>" method="post" class="inline">
+          <?= csrf_field() ?><input type="hidden" name="id" value="<?= (int)$r['id'] ?>">
+          <button class="btn btn-sm" name="aksi" value="update">Simpan</button>
+          <button class="btn btn-danger btn-sm" name="aksi" value="hapus" data-confirm="Hapus part ini dari build?">Hapus</button>
+        </form>
+      </td>
+    </tr>
+    <?php endforeach; ?>
+  </table>
+  </div>
+  <div class="total">
+    <span>Part <?= rupiah($g['part']) ?> + Jasa <?= rupiah($g['jasa']) ?></span>
+    <span>Subtotal <?= rupiah($g['part'] + $g['jasa']) ?></span>
+  </div>
+</section>
+<?php endforeach; ?>
+<?php if ($groups): ?><div class="panel stats"><div class="stat"><b><?= rupiah($grand) ?></b>Total semua build</div></div><?php endif; ?>
+<?php include '../includes/footer.php'; ?>
+=======
 <?php else: ?>
 <div class="build-layout">
 
@@ -130,3 +178,4 @@ include '../includes/header.php';
 </div>
 <?php endif; ?>
 <?php include '../includes/footer.php'; ?>
+>>>>>>> 397324069be6e4cfbb5db59296b77ea9a152e5a7

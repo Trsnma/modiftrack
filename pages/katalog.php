@@ -1,6 +1,9 @@
 <?php
 require_once '../includes/auth.php';
+<<<<<<< HEAD
+=======
 require_once '../includes/upload.php';
+>>>>>>> 397324069be6e4cfbb5db59296b77ea9a152e5a7
 require_login();
 $uid = $_SESSION['user_id'];
 $kats = ['Eksterior', 'Interior', 'Kaki-kaki', 'Performa'];
@@ -68,6 +71,10 @@ include '../includes/header.php';
   <div class="card">Belum ada part yang cocok<?= $sel ? ' untuk ' . e($sel['merk'] . ' ' . $sel['model']) : '' ?>.</div>
 <?php else: ?>
 <div class="grid">
+<<<<<<< HEAD
+  <?php foreach ($parts as $p): ?>
+  <article class="card">
+=======
   <?php foreach ($parts as $p): $img = foto_url($p['foto']); ?>
   <article class="card">
     <?php if ($img): ?>
@@ -75,6 +82,7 @@ include '../includes/header.php';
     <?php else: ?>
       <div class="thumb thumb-empty">Tanpa foto</div>
     <?php endif; ?>
+>>>>>>> 397324069be6e4cfbb5db59296b77ea9a152e5a7
     <span class="tag"><?= e($p['kategori']) ?></span>
     <h3><?= e($p['nama_part']) ?></h3>
     <p class="muted"><?= e($p['kompatibel_merk'] . ' ' . $p['kompatibel_model']) ?> · <?= (int)$p['tahun_min'] ?>-<?= (int)$p['tahun_max'] ?></p>
@@ -91,4 +99,8 @@ include '../includes/header.php';
   <?php endforeach; ?>
 </div>
 <?php endif; ?>
+<<<<<<< HEAD
 <?php include '../includes/footer.php'; ?>
+=======
+<?php include '../includes/footer.php'; ?>
+>>>>>>> 397324069be6e4cfbb5db59296b77ea9a152e5a7
