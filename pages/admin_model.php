@@ -139,7 +139,13 @@ include '../includes/header.php';
       <label for="model">Model</label>
       <input id="model" name="model" maxlength="50" required placeholder="Vario 150">
     </div>
-    <div><button class="btn" type="submit">Simpan</button></div>
+    <div>
+      <button class="btn" type="submit"
+              data-confirm="Apakah Anda yakin ingin menambahkan model ini ke daftar merk dan model?"
+              data-confirm-title="Tambah model?"
+              data-confirm-ok="Ya, tambahkan"
+              data-confirm-tone="primary">Simpan</button>
+    </div>
   </div>
 </form>
 
@@ -150,7 +156,13 @@ include '../includes/header.php';
   <?= csrf_field() ?><input type="hidden" name="aksi" value="import">
   <label for="csv">File CSV</label>
   <input id="csv" type="file" name="csv" accept=".csv,text/csv" required>
-  <p><button class="btn" type="submit">Import</button></p>
+  <p>
+    <button class="btn" type="submit"
+            data-confirm="Apakah Anda yakin ingin mengimpor daftar merk dan model dari file ini? Pasangan yang sudah ada akan dilewati."
+            data-confirm-title="Import merk &amp; model?"
+            data-confirm-ok="Ya, import"
+            data-confirm-tone="primary">Import</button>
+  </p>
 </form>
 
 <?php if ($errors): ?>
@@ -179,7 +191,9 @@ include '../includes/header.php';
       <?php else: ?>
         <form method="post" class="inline">
           <?= csrf_field() ?><input type="hidden" name="aksi" value="hapus"><input type="hidden" name="id" value="<?= (int)$d['id'] ?>">
-          <button class="btn btn-danger btn-sm" data-confirm="Hapus <?= e($d['merk'] . ' ' . $d['model']) ?> dari daftar?">Hapus</button>
+          <button class="btn btn-danger btn-sm"
+                  data-confirm="Apakah Anda yakin ingin menghapus <?= e($d['merk'] . ' ' . $d['model']) ?> dari daftar?"
+                  data-confirm-title="Hapus model?">Hapus</button>
         </form>
       <?php endif; ?>
     </td>

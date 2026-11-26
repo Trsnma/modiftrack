@@ -108,8 +108,22 @@ include '../includes/header.php';
     <p class="muted">Foto saat ini (kosongkan kolom foto untuk mempertahankannya):</p>
     <img class="thumb-sm" src="<?= e($cur) ?>" alt="Foto saat ini">
   <?php endif; ?>
-  <p><button class="btn" type="submit">Simpan</button>
-     <?php if ($edit): ?><a class="btn btn-ghost" href="admin_katalog.php">Batal</a><?php endif; ?></p>
+  <p>
+    <?php if ($edit): ?>
+      <button class="btn" type="submit"
+              data-confirm="Apakah Anda yakin ingin menyimpan perubahan pada <?= e($f['nama_part']) ?>?"
+              data-confirm-title="Simpan perubahan?"
+              data-confirm-ok="Ya, simpan"
+              data-confirm-tone="primary">Simpan</button>
+      <a class="btn btn-ghost" href="admin_katalog.php">Batal</a>
+    <?php else: ?>
+      <button class="btn" type="submit"
+              data-confirm="Apakah Anda yakin ingin menambahkan part ini ke katalog?"
+              data-confirm-title="Tambah part?"
+              data-confirm-ok="Ya, tambahkan"
+              data-confirm-tone="primary">Simpan</button>
+    <?php endif; ?>
+  </p>
   <?php endif; ?>
 </form>
 <div class="card table-scroll">
@@ -125,7 +139,9 @@ include '../includes/header.php';
       <a class="btn btn-ghost btn-sm" href="?edit=<?= (int)$p['id'] ?>">Ubah</a>
       <form method="post" class="inline">
         <?= csrf_field() ?><input type="hidden" name="aksi" value="hapus"><input type="hidden" name="id" value="<?= (int)$p['id'] ?>">
-        <button class="btn btn-danger btn-sm" data-confirm="Hapus part ini? Part juga hilang dari build plan user.">Hapus</button>
+        <button class="btn btn-danger btn-sm"
+                data-confirm="Apakah Anda yakin ingin menghapus <?= e($p['nama_part']) ?>? Part ini juga hilang dari build plan semua pengguna."
+                data-confirm-title="Hapus part?">Hapus</button>
       </form>
     </td>
   </tr>

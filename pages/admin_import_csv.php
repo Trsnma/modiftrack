@@ -79,6 +79,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         $ok[2] = $mm['merk']; $ok[3] = $mm['model'];   // pakai penulisan baku dari master
                     }
                 }
+                if ($pesan) $errors[] = 'Baris ' . ($i + 2) . ': ' . $pesan;
+                else $siap[] = $ok;
             }
 
             // Tahap 2: simpan dalam satu transaksi
@@ -129,15 +131,21 @@ include '../includes/header.php';
 <div class="card">
   <h3>Cara pakai</h3>
   <p>1. <a href="?template=1">Unduh template CSV</a> dan buka di Excel.<br>
-     2. Isi satu part per baris. Kategori harus salah satu dari: <b>Eksterior, Interior, Kaki-kaki, Performa</b>. Harga ditulis angka tanpa titik (contoh <code>1850000</code>).<br>
+     2. Isi satu part per baris. Kategori harus salah satu dari: <b>Eksterior, Interior, Kaki-kaki, Performa</b>. Harga ditulis angka tanpa titik (contoh <code>1850000</code>). Merk dan model harus sudah ada di <a href="admin_model.php">Kelola merk &amp; model</a>.<br>
      3. Kolom <code>foto</code> boleh kosong. Kalau diisi (misalnya <code>knalpot.jpg</code>), salin dulu fotonya ke <code>htdocs/modiftrack/uploads/import/</code>.<br>
      4. Simpan sebagai <b>CSV</b> (Excel: File, Save As, <i>CSV UTF-8</i>), lalu upload di bawah. Maksimal <?= CSV_MAX_ROWS ?> baris dan 1 MB.</p>
   <form method="post" enctype="multipart/form-data">
     <?= csrf_field() ?>
     <label for="csv">File CSV</label>
     <input id="csv" type="file" name="csv" accept=".csv,text/csv" required>
-    <p><button class="btn" type="submit">Import</button>
-       <a class="btn btn-ghost" href="admin_katalog.php">Kembali</a></p>
+    <p>
+      <button class="btn" type="submit"
+              data-confirm="Apakah Anda yakin ingin mengimpor data dari file ini? Semua baris diperiksa dulu, dan tidak ada yang tersimpan kalau masih ada yang salah."
+              data-confirm-title="Import data part?"
+              data-confirm-ok="Ya, import"
+              data-confirm-tone="primary">Import</button>
+      <a class="btn btn-ghost" href="admin_katalog.php">Kembali</a>
+    </p>
   </form>
 </div>
 
